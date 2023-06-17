@@ -19,6 +19,7 @@ const serve_static_1 = __importDefault(require("serve-static"));
 const LoginRouter_1 = __importDefault(require("./LoginRouter"));
 const ResetPassRouter_1 = __importDefault(require("./ResetPassRouter"));
 const APIRouter_1 = __importDefault(require("./APIRouter"));
+const AvatarUploadRouter_1 = __importDefault(require("./AvatarUploadRouter"));
 const verifyUserMiddleware_1 = __importDefault(require("../custom_middleware/verifyUserMiddleware"));
 const appRouter = express_1.default.Router();
 appRouter.use(verifyUserMiddleware_1.default);
@@ -26,6 +27,7 @@ appRouter.use((0, serve_static_1.default)(path_1.default.join(__dirname, '../../
 appRouter.use('/login', LoginRouter_1.default);
 appRouter.use('/reset-password', ResetPassRouter_1.default);
 appRouter.use('/api', APIRouter_1.default);
+appRouter.use('/upload', AvatarUploadRouter_1.default);
 appRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const request = req;
     request.user ? res.sendFile(path_1.default.join(__dirname, '../../views/fbims-app/app.html')) : res.redirect('/app/login');

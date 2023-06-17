@@ -12,21 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const addMemberRecordTransaction_1 = __importDefault(require("../mysql/addMemberRecordTransaction"));
-const index_1 = require("../index");
-const addMemberRecord = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const request = req;
-    const adminUID = (_a = request.user) === null || _a === void 0 ? void 0 : _a.UID;
-    const congregationUID = (_b = request.user) === null || _b === void 0 ? void 0 : _b.congregation;
-    (0, addMemberRecordTransaction_1.default)(req.body, { congregation: congregationUID, adminUID: adminUID })
-        .then(result => {
-        index_1.io.emit('NEW_MEMBERS_RECORD_ADDED');
-        res.json(result);
-    })
-        .catch(err => {
-        console.log(err);
-        res.json(err);
-    });
+const getRecordsCount_1 = __importDefault(require("../mysql/getRecordsCount"));
+const getRecordsCountHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userRequest = req;
+    const table = req.params.container;
+    switch (table) {
+        case "members":
+            (0, getRecordsCount_1.default)("members", (_a = userRequest.user) === null || _a === void 0 ? void 0 : _a.congregation)
+                .then(result => {
+                res.json(result);
+            })
+                .catch(err => res.json(err));
+    }
 });
-exports.default = addMemberRecord;
+exports.default = getRecordsCountHandler;

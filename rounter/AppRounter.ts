@@ -8,6 +8,7 @@ import { IUserRequest } from "../types/IUserRequest";
 import loginRouter from './LoginRouter';
 import resetPassRouter from './ResetPassRouter';
 import APIRouter from './APIRouter';
+import AvatarUploadRouter from './AvatarUploadRouter';
 
 import verifyUserMiddleware from '../custom_middleware/verifyUserMiddleware';
 
@@ -22,6 +23,8 @@ appRouter.use('/login', loginRouter);
 appRouter.use('/reset-password', resetPassRouter);
 
 appRouter.use('/api', APIRouter);
+
+appRouter.use('/upload', AvatarUploadRouter);
 
 appRouter.get('/', async (req, res) => {
     const request = req as IUserRequest;

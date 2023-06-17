@@ -4,8 +4,10 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import pool from './mysql/pool';
 import serveStatic from 'serve-static';
+import { Server, Socket } from 'socket.io';
+
+import http from 'http';
 
 //Types
 import { IUserRequest } from './types/IUserRequest';
@@ -26,6 +28,14 @@ import AppRouter from "./rounter/AppRounter";
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+export const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000', // Specify the allowed origin(s)
+    methods: ['GET', 'POST'] // Specify the allowed HTTP methods
+  }
+});
+
 const port = process.env.PORT;
 
 // parse application/json
@@ -37,12 +47,6 @@ app.use(cookieParser())
 //Setup CORS
 app.use(config.allowCORS? config.allowCORS == "*"? cors() : cors({origin: config.allowCORS}) : (req, res, next) => next());
 
-
-//Verify User Request
-// app.use(verifyUserMiddleware as RequestHandler);
-
-// app.use(express.static(path.join(__dirname, '../public')));
-
 app.use(serveStatic(path.join(__dirname, '../public')))
 
 app.get('/', async (req, res) => {
@@ -53,5 +57,21 @@ app.post('/request-access', handleRequestAccess);
 
 app.use('/app', AppRouter);
 
-// app.get()
+io.on('connection', (socket: Socket) => {
+  console.log('A user connected.');
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected.');
+  });
+
+  socket.on('chat message', (message: string) => {
+    console.log('Received message:', message);
+    // Handle the message and emit it back to clients if needed
+  });
+});
+
+server.listen(3008, () => {
+  console.log(`Server listening on port 3008`);
+});
+
 app.listen(port, () => console.log(`Server is Up and running at port: ${port}`));

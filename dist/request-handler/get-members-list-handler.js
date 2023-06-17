@@ -12,21 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const addMemberRecordTransaction_1 = __importDefault(require("../mysql/addMemberRecordTransaction"));
-const index_1 = require("../index");
-const addMemberRecord = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const request = req;
-    const adminUID = (_a = request.user) === null || _a === void 0 ? void 0 : _a.UID;
-    const congregationUID = (_b = request.user) === null || _b === void 0 ? void 0 : _b.congregation;
-    (0, addMemberRecordTransaction_1.default)(req.body, { congregation: congregationUID, adminUID: adminUID })
-        .then(result => {
-        index_1.io.emit('NEW_MEMBERS_RECORD_ADDED');
+const getCongregationMembers_1 = __importDefault(require("../mysql/getCongregationMembers"));
+const getCongregationMembersHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userRequest = req;
+    try {
+        const result = yield (0, getCongregationMembers_1.default)((_a = userRequest.user) === null || _a === void 0 ? void 0 : _a.congregation, req.body);
         res.json(result);
-    })
-        .catch(err => {
-        console.log(err);
+    }
+    catch (err) {
         res.json(err);
-    });
+    }
 });
-exports.default = addMemberRecord;
+exports.default = getCongregationMembersHandler;
