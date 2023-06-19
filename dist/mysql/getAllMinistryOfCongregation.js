@@ -13,28 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getRecordsCount(table, congregation) {
+function getAllMinistryOfCongregation(congregation) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const query = table == "members" ? "SELECT COUNT(*) AS total_count FROM congregation_members WHERE congregation_uid = ?" :
-                table == "ministry" ? "SELECT COUNT(*) AS total_count FROM congregation_ministry WHERE congregation_uid = ?" :
-                    table == "organizations" ? "SELECT COUNT(*) AS total_count FROM congregation_organizations WHERE congregation_uid = ?" : null;
-            if (query) {
-                promisePool.query(query, [congregation])
-                    .then(res => {
-                    const count = res[0][0];
-                    resolve({ success: true, data: count });
-                })
-                    .catch(err => {
-                    reject({ success: false, error: err });
-                });
-            }
-            else {
-                reject({ success: false, error: "No Query" });
-            }
+            const getAllMinistryOfCongregationQuery = `
+        SELECT cm.ministry_uid AS ministryUID, a.avatar, mi.description, mi.ministry_name AS ministryName
+        FROM congregation_ministry AS cm
+        JOIN ministry AS m ON cm.ministry_uid = m.ministry_uid
+        JOIN ministry_info AS mi ON m.ministry_info = mi.id
+        LEFT JOIN avatar AS a ON m.avatar = a.id
+        WHERE cm.congregation_uid = ?`;
+            promisePool.query(getAllMinistryOfCongregationQuery, [congregation])
+                .then(result => {
+                const data = result[0];
+                resolve({ success: true, data: data });
+            })
+                .catch(err => {
+                console.log(err);
+                reject({ success: false, error: err });
+            });
         });
     });
 }
-;
-exports.default = getRecordsCount;
+exports.default = getAllMinistryOfCongregation;

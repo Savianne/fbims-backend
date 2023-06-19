@@ -12,18 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const getRecordsCount_1 = __importDefault(require("../mysql/getRecordsCount"));
-const getRecordsCountHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const userRequest = req;
-    const table = req.params.container;
+const geMinsterInfo_1 = __importDefault(require("../mysql/geMinsterInfo"));
+const getMinistryInfoHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const ministryUID = req.body.data;
     try {
-        const result = yield (0, getRecordsCount_1.default)(table, (_a = userRequest.user) === null || _a === void 0 ? void 0 : _a.congregation);
+        const result = yield (0, geMinsterInfo_1.default)(ministryUID);
         res.json(result);
     }
     catch (err) {
-        console.log(err);
         res.json(err);
     }
 });
-exports.default = getRecordsCountHandler;
+exports.default = getMinistryInfoHandler;

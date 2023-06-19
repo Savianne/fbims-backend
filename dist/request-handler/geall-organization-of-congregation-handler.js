@@ -12,13 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const getRecordsCount_1 = __importDefault(require("../mysql/getRecordsCount"));
-const getRecordsCountHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllOrgganizationOfCongregation_1 = __importDefault(require("../mysql/getAllOrgganizationOfCongregation"));
+const getAllOrganizationOfCongregationHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const userRequest = req;
-    const table = req.params.container;
     try {
-        const result = yield (0, getRecordsCount_1.default)(table, (_a = userRequest.user) === null || _a === void 0 ? void 0 : _a.congregation);
+        const result = yield (0, getAllOrgganizationOfCongregation_1.default)((_a = userRequest.user) === null || _a === void 0 ? void 0 : _a.congregation);
         res.json(result);
     }
     catch (err) {
@@ -26,4 +25,4 @@ const getRecordsCountHandler = (req, res) => __awaiter(void 0, void 0, void 0, f
         res.json(err);
     }
 });
-exports.default = getRecordsCountHandler;
+exports.default = getAllOrganizationOfCongregationHandler;

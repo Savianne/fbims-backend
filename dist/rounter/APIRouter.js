@@ -9,6 +9,12 @@ const get_records_count_handler_1 = __importDefault(require("../request-handler/
 const get_members_list_handler_1 = __importDefault(require("../request-handler/get-members-list-handler"));
 const delete_member_record_handler_1 = __importDefault(require("../request-handler/delete-member-record-handler"));
 const add_ministry_1 = __importDefault(require("../request-handler/add-ministry"));
+const add_organization_1 = __importDefault(require("../request-handler/add-organization"));
+const get_all_ministry_of_congregation_handler_1 = __importDefault(require("../request-handler/get-all-ministry-of-congregation-handler"));
+const get_ministry_members_1 = __importDefault(require("../request-handler/get-ministry-members"));
+const geall_organization_of_congregation_handler_1 = __importDefault(require("../request-handler/geall-organization-of-congregation-handler"));
+const get_organization_members_1 = __importDefault(require("../request-handler/get-organization-members"));
+const get_ministry_info_handler_1 = __importDefault(require("../request-handler/get-ministry-info-handler"));
 const APIRouter = express_1.default.Router();
 APIRouter.use((req, res, next) => {
     const request = req;
@@ -29,4 +35,10 @@ APIRouter.post("/get-records-count/:container", get_records_count_handler_1.defa
 APIRouter.post("/get-members-list", get_members_list_handler_1.default);
 APIRouter.post("/delete-member-record", delete_member_record_handler_1.default);
 APIRouter.post("/add-ministry", add_ministry_1.default);
+APIRouter.post("/add-organization", add_organization_1.default);
+APIRouter.post("/get-ministries", get_all_ministry_of_congregation_handler_1.default);
+APIRouter.post('/get-organizations', geall_organization_of_congregation_handler_1.default);
+APIRouter.post("/get-ministry-members/", get_ministry_members_1.default);
+APIRouter.post("/get-organization-member", get_organization_members_1.default);
+APIRouter.post("/get-ministry-info", get_ministry_info_handler_1.default);
 exports.default = APIRouter;

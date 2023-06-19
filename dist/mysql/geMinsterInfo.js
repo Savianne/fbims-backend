@@ -13,28 +13,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getRecordsCount(table, congregation) {
+function getMinistryInfo(minstryUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const query = table == "members" ? "SELECT COUNT(*) AS total_count FROM congregation_members WHERE congregation_uid = ?" :
-                table == "ministry" ? "SELECT COUNT(*) AS total_count FROM congregation_ministry WHERE congregation_uid = ?" :
-                    table == "organizations" ? "SELECT COUNT(*) AS total_count FROM congregation_organizations WHERE congregation_uid = ?" : null;
-            if (query) {
-                promisePool.query(query, [congregation])
-                    .then(res => {
-                    const count = res[0][0];
-                    resolve({ success: true, data: count });
-                })
-                    .catch(err => {
-                    reject({ success: false, error: err });
-                });
-            }
-            else {
-                reject({ success: false, error: "No Query" });
-            }
+            const getMinistryQuery = `
+        SELECT m.ministry_uid AS ministryUID, mi.ministry_name AS ministryName, mi.description, a.avatar
+        FROM ministry AS m
+        JOIN ministry_info AS mi ON m.ministry_info = mi.id
+        LEFT JOIN avatar AS a ON m.avatar = a.id
+        WHERE m.ministry_uid = ?`;
+            promisePool.query(getMinistryQuery, [minstryUID])
+                .then(result => {
+                const data = result[0];
+                resolve({ success: true, data: data[0] });
+            })
+                .catch(err => {
+                console.log(err);
+                reject({ success: false, error: err });
+            });
         });
     });
 }
-;
-exports.default = getRecordsCount;
+exports.default = getMinistryInfo;

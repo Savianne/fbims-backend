@@ -30,7 +30,8 @@ function addMemberRecordTransactionPromise(memberRecord, adminInfo) {
         const addMemberPersonalInfoQuery = "INSERT INTO members_personal_info (full_name, date_of_birth, gender, marital_status, current_address_ph, permanent_address_ph, current_address_out_ph, permanent_address_out_ph) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         const addMemberContactInfoQuery = "INSERT INTO members_contact_info (cp_number, tel_number, email) VALUES (?, ?, ?)";
         const addBaptismInfoQuery = "INSERT INTO baptism_info (date_of_baptism) VALUES (?)";
-        const addMemberQuery = "INSERT INTO members (member_uid, personal_info, contact_info, baptism_info) VALUES (?, ?, ?, ?)";
+        const addAvatarQ = "INSERT INTO avatar (avatar) VALUES (?)";
+        const addMemberQuery = "INSERT INTO members (member_uid, personal_info, contact_info, baptism_info, avatar) VALUES (?, ?, ?, ?, ?)";
         const addMemberToCongregationQuery = "INSERT INTO congregation_members (congregation_uid, member_uid, created_by) VALUES (?, ?, ?)";
         return new Promise((resolve, reject) => {
             promisePool.getConnection()
@@ -61,9 +62,11 @@ function addMemberRecordTransactionPromise(memberRecord, adminInfo) {
                     //Query 6: Insert Baptism Information, Need to check if baptism info is not null; if null asign a null value or else do the query;
                     const [addBaptismInfoQueryResult] = baptismInformation == null ? [null] : yield connection.query(addBaptismInfoQuery, [baptismInformation.dateOfBaptism]);
                     const baptismInfoId = addBaptismInfoQueryResult == null ? null : addBaptismInfoQueryResult.insertId;
+                    const [avatarQResult] = personalInfo.avatar ? yield connection.query(addAvatarQ, [personalInfo.avatar]) : [null];
+                    const avatarID = personalInfo.avatar ? avatarQResult.insertId : null;
                     //Query 7: Insert the group of FKeys personal info, contact info, baptism info, and the new generated UID for Member
                     const memberUID = (0, generateUID_1.generateMembersUID)();
-                    const [addMemberQueryResult] = yield connection.query(addMemberQuery, [memberUID, personalInfoInserID, contactInformationID, baptismInfoId]);
+                    const [addMemberQueryResult] = yield connection.query(addMemberQuery, [memberUID, personalInfoInserID, contactInformationID, baptismInfoId, avatarID]);
                     //Query 8: Finaly, Insert the memberUID to the congregation_members table
                     const [addMemberToCongregationQueryResult] = yield connection.query(addMemberToCongregationQuery, [adminInfo.congregation, memberUID, adminInfo.adminUID]);
                     connection.commit()

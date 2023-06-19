@@ -7,14 +7,16 @@ const getRecordsCountHandler = async (req: Request, res:Response) => {
     const userRequest = req as IUserRequest;
 
     const table = req.params.container;
-    switch(table) {
-        case "members":
-            getRecordsCount("members", userRequest.user?.congregation as string) 
-            .then(result => {
-                res.json(result)
-            })
-            .catch(err => res.json(err))
+
+    try {
+        const result = await getRecordsCount(table, userRequest.user?.congregation as string);
+        res.json(result);
     }
+    catch(err) {
+        console.log(err);
+        res.json(err);
+    }
+
 }
 
 export default getRecordsCountHandler;

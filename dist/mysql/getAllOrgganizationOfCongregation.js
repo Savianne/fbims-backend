@@ -13,28 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getRecordsCount(table, congregation) {
+function getAllOrganizationOfCongregation(congregation) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const query = table == "members" ? "SELECT COUNT(*) AS total_count FROM congregation_members WHERE congregation_uid = ?" :
-                table == "ministry" ? "SELECT COUNT(*) AS total_count FROM congregation_ministry WHERE congregation_uid = ?" :
-                    table == "organizations" ? "SELECT COUNT(*) AS total_count FROM congregation_organizations WHERE congregation_uid = ?" : null;
-            if (query) {
-                promisePool.query(query, [congregation])
-                    .then(res => {
-                    const count = res[0][0];
-                    resolve({ success: true, data: count });
-                })
-                    .catch(err => {
-                    reject({ success: false, error: err });
-                });
-            }
-            else {
-                reject({ success: false, error: "No Query" });
-            }
+            const getAllOrganizationOfCongregationQuery = `
+        SELECT co.organization_uid AS organizationUID, o.avatar, oi.description, oi.organization_name AS organizationName
+        FROM congregation_organizations AS co
+        JOIN organizations AS o ON co.organization_uid = o.organization_uid
+        JOIN organization_info AS oi ON o.organization_info = oi.id
+        LEFT JOIN avatar AS a ON o.avatar = a.id
+        WHERE co.congregation_uid = ?`;
+            promisePool.query(getAllOrganizationOfCongregationQuery, [congregation])
+                .then(result => {
+                const data = result[0];
+                resolve({ success: true, data: data });
+            })
+                .catch(err => {
+                console.log(err);
+                reject({ success: false, error: err });
+            });
         });
     });
 }
-;
-exports.default = getRecordsCount;
+exports.default = getAllOrganizationOfCongregation;
