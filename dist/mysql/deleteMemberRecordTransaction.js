@@ -38,6 +38,7 @@ function deleteMemberRecordTransactionPromise(memberUID) {
         const deleteContactInfoQ = "DELETE FROM members_contact_info WHERE id = ?";
         const deleteBaptismInfoQ = "DELETE FROM baptism_info WHERE id = ?";
         const deleteAvatarQ = "DELETE FORM avatar WHERE id = ?";
+        const deleteMembersQ = "DELETE FROM members WHERE member_uid = ?";
         const deleteCongragationMemberQ = "DELETE FROM congregation_members WHERE member_uid = ?";
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
@@ -46,7 +47,7 @@ function deleteMemberRecordTransactionPromise(memberUID) {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
                     const getRecordFKeysQResult = yield connection.query(getRecordFKeysQ, [memberUID]);
-                    const recordFKeys = getRecordFKeysQResult[0];
+                    const recordFKeys = (getRecordFKeysQResult[0])[0];
                     //Start deletion
                     recordFKeys.currentAddressOutPhId && (yield connection.query(deleteCurrentAddressOutPhQ, [recordFKeys.currentAddressOutPhId]));
                     recordFKeys.currentAddressPhId && (yield connection.query(deleteCurrentAddresPh, [recordFKeys.currentAddressPhId]));
@@ -57,6 +58,7 @@ function deleteMemberRecordTransactionPromise(memberUID) {
                     recordFKeys.contactInfoId && (yield connection.query(deleteContactInfoQ, [recordFKeys.contactInfoId]));
                     recordFKeys.baptismInfoId && (yield connection.query(deleteBaptismInfoQ, [recordFKeys.baptismInfoId]));
                     recordFKeys.avatarId && (yield connection.query(deleteAvatarQ, [recordFKeys.avatarId]));
+                    yield connection.query(deleteMembersQ, [memberUID]);
                     yield connection.query(deleteCongragationMemberQ, [memberUID]);
                     //Commit 
                     connection.commit();

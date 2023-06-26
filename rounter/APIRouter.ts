@@ -13,6 +13,11 @@ import getMinistryMembersHandler from '../request-handler/get-ministry-members';
 import getAllOrganizationOfCongregationHandler from '../request-handler/geall-organization-of-congregation-handler';
 import getOrganizationMembersHandler from '../request-handler/get-organization-members';
 import getMinistryInfoHandler from '../request-handler/get-ministry-info-handler';
+import getOrganizationInfoHandler from '../request-handler/get-organization-info';
+import searchMemberForAddingMinistryMembersHandler from '../request-handler/search-members-for-ministry-membership-handler';
+import searchMemberForAddingOrganizationMembersHandler from '../request-handler/search-members-for-adding-to-organization';
+import addMemberToMinistryHandler from '../request-handler/addMemberToMinistryHandler';
+import addMemberToOrganizationHandler from '../request-handler/addMemberToOrganizationHandler';
 
 const APIRouter = express.Router();
 
@@ -52,5 +57,15 @@ APIRouter.post("/get-ministry-members/", getMinistryMembersHandler);
 APIRouter.post("/get-organization-member", getOrganizationMembersHandler);
 
 APIRouter.post("/get-ministry-info", getMinistryInfoHandler);
+
+APIRouter.post('/get-organization-info', getOrganizationInfoHandler);
+
+APIRouter.post('/find-member', searchMemberForAddingMinistryMembersHandler);
+
+APIRouter.post('/find-member-for-org', searchMemberForAddingOrganizationMembersHandler);
+
+APIRouter.post('/add-member-to-ministry', addMemberToMinistryHandler)
+
+APIRouter.post('/add-member-to-organization', addMemberToOrganizationHandler);
 
 export default APIRouter;

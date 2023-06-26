@@ -7,7 +7,7 @@ async function getOrganizationMembers(organizationUID: string): Promise<{ succes
 
     return new Promise<{ success: boolean, error?: any, data?: any }>((resolve, reject) => {
         const getAllMembersOfTheOrganizationQuery = `
-        SELECT om.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar
+        SELECT om.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar,  mpi.gender, mpi.date_of_birth AS dateOfBirth
         FROM organization_members AS om
         JOIN organizations AS o ON om.organization_uid = o.organization_uid
         JOIN members AS m ON m.member_uid = om.member_uid

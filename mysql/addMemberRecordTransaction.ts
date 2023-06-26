@@ -32,7 +32,12 @@ type TAddMemberRecordTransactionParam = {
         email: string | null,
         cpNumber: string | null,
         telephoneNumber: string | null,
-    }, 
+    },
+    homeContactInformation: {
+        email: string | null,
+        cpNumber: string | null,
+        telephoneNumber: string | null,
+    },
     currentAddress: TAddressPH | TAddressNonPH,
     permanentAddress: TAddressPH | TAddressNonPH,
     baptismInformation:  {
@@ -43,6 +48,7 @@ type TAddMemberRecordTransactionParam = {
 async function addMemberRecordTransactionPromise(memberRecord: TAddMemberRecordTransactionParam, adminInfo: { congregation: string, adminUID: string}): Promise<{ querySuccess: boolean }> {
     const personalInfo = memberRecord.personalInformation;
     const contactInformation = memberRecord.contactInformation;
+    const homeContactInfo = memberRecord.homeContactInformation;
     const currentAddress = memberRecord.currentAddress;
     const permanentAddress = memberRecord.permanentAddress;
     const baptismInformation = memberRecord.baptismInformation
@@ -56,9 +62,10 @@ async function addMemberRecordTransactionPromise(memberRecord: TAddMemberRecordT
     const addNonPHCurrentAddressQuery = "INSERT INTO outside_ph_address (address) VALUES (?)";
     const addMemberPersonalInfoQuery = "INSERT INTO members_personal_info (full_name, date_of_birth, gender, marital_status, current_address_ph, permanent_address_ph, current_address_out_ph, permanent_address_out_ph) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     const addMemberContactInfoQuery = "INSERT INTO members_contact_info (cp_number, tel_number, email) VALUES (?, ?, ?)";
+    const addMemberHomeContactInfoQuery = "INSERT INTO members_home_contact_info (cp_number, tel_number, email) VALUES (?, ?, ?)";
     const addBaptismInfoQuery = "INSERT INTO baptism_info (date_of_baptism) VALUES (?)";
     const addAvatarQ = "INSERT INTO avatar (avatar) VALUES (?)";
-    const addMemberQuery = "INSERT INTO members (member_uid, personal_info, contact_info, baptism_info, avatar) VALUES (?, ?, ?, ?, ?)";
+    const addMemberQuery = "INSERT INTO members (member_uid, personal_info, contact_info, home_contact_info, baptism_info, avatar) VALUES (?, ?, ?, ?, ?, ?)";
     const addMemberToCongregationQuery = "INSERT INTO congregation_members (congregation_uid, member_uid, created_by) VALUES (?, ?, ?)";
   
     return new Promise<IQueryPromise>((resolve, reject) => {
@@ -92,6 +99,10 @@ async function addMemberRecordTransactionPromise(memberRecord: TAddMemberRecordT
                 const [addMemberContactInfoQueryResult] = (contactInformation.cpNumber == null && contactInformation.telephoneNumber == null && contactInformation.email == null)? [null] : await connection.query(addMemberContactInfoQuery , [contactInformation.cpNumber, contactInformation.telephoneNumber, contactInformation.email]);
                 const contactInformationID = addMemberContactInfoQueryResult == null? null : ( addMemberContactInfoQueryResult as OkPacket).insertId;
 
+                //Query 6: Insert home Contact Info. Check if all values are null, if true asign a null value as id else do the query and get the InsertId
+                const [addMemberHomeContactInfoQueryResult] = (homeContactInfo.cpNumber == null && homeContactInfo.telephoneNumber == null && homeContactInfo.email == null)? [null] : await connection.query(addMemberHomeContactInfoQuery , [homeContactInfo.cpNumber, homeContactInfo.telephoneNumber, homeContactInfo.email]);
+                const homeContactInformationID = addMemberHomeContactInfoQueryResult == null? null : ( addMemberHomeContactInfoQueryResult as OkPacket).insertId;
+
                 //Query 6: Insert Baptism Information, Need to check if baptism info is not null; if null asign a null value or else do the query;
                 const [addBaptismInfoQueryResult] = baptismInformation == null? [null] : await connection.query(addBaptismInfoQuery, [baptismInformation.dateOfBaptism]);
                 const baptismInfoId = addBaptismInfoQueryResult == null? null : (addBaptismInfoQueryResult as OkPacket).insertId;
@@ -101,7 +112,7 @@ async function addMemberRecordTransactionPromise(memberRecord: TAddMemberRecordT
 
                 //Query 7: Insert the group of FKeys personal info, contact info, baptism info, and the new generated UID for Member
                 const memberUID = generateMembersUID();
-                const [addMemberQueryResult] = await connection.query(addMemberQuery, [memberUID, personalInfoInserID, contactInformationID, baptismInfoId, avatarID]);
+                const [addMemberQueryResult] = await connection.query(addMemberQuery, [memberUID, personalInfoInserID, contactInformationID, homeContactInformationID, baptismInfoId, avatarID]);
                 
                 //Query 8: Finaly, Insert the memberUID to the congregation_members table
                 const [addMemberToCongregationQueryResult] = await connection.query(addMemberToCongregationQuery, [adminInfo.congregation, memberUID, adminInfo.adminUID]);

@@ -41,6 +41,7 @@ async function deleteMemberRecordTransactionPromise(memberUID: string): Promise<
     const deleteContactInfoQ = "DELETE FROM members_contact_info WHERE id = ?";
     const deleteBaptismInfoQ = "DELETE FROM baptism_info WHERE id = ?";
     const deleteAvatarQ = "DELETE FORM avatar WHERE id = ?";
+    const deleteMembersQ  = "DELETE FROM members WHERE member_uid = ?";
     const deleteCongragationMemberQ = "DELETE FROM congregation_members WHERE member_uid = ?"
 
     const promisePool = pool.promise();
@@ -51,7 +52,7 @@ async function deleteMemberRecordTransactionPromise(memberUID: string): Promise<
             connection.beginTransaction()
             .then(async () => {
                 const getRecordFKeysQResult = await connection.query(getRecordFKeysQ, [memberUID]);
-                const recordFKeys = ((getRecordFKeysQResult as RowDataPacket[][])[0] as unknown) as TRecordFKeys;
+                const recordFKeys = ((getRecordFKeysQResult as RowDataPacket[][])[0])[0] as TRecordFKeys;
                 
                 //Start deletion
                 recordFKeys.currentAddressOutPhId && await connection.query(deleteCurrentAddressOutPhQ, [recordFKeys.currentAddressOutPhId]);
@@ -63,10 +64,12 @@ async function deleteMemberRecordTransactionPromise(memberUID: string): Promise<
                 recordFKeys.contactInfoId && await connection.query(deleteContactInfoQ, [recordFKeys.contactInfoId]);
                 recordFKeys.baptismInfoId && await connection.query(deleteBaptismInfoQ, [recordFKeys.baptismInfoId]);
                 recordFKeys.avatarId && await connection.query(deleteAvatarQ, [recordFKeys.avatarId]);
+
+                await connection.query(deleteMembersQ, [memberUID]);
                 await connection.query(deleteCongragationMemberQ, [memberUID]);
                 
                 //Commit 
-                connection.commit();
+                connection.commit()
                 connection.release();
                 resolve({querySuccess: true});
             })

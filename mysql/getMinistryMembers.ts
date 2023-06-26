@@ -7,7 +7,7 @@ async function getMinistryMembers(ministryUID: string): Promise<{ success: boole
 
     return new Promise<{ success: boolean, error?: any, data?: any }>((resolve, reject) => {
         const getAllMembersOfTheMinistryQuery = `
-        SELECT m.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar
+        SELECT m.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar, mpi.gender, mpi.date_of_birth AS dateOfBirth
         FROM ministry_members AS mm
         JOIN members AS m ON mm.member_uid = m.member_uid
         JOIN members_personal_info AS mpi ON m.personal_info = mpi.id

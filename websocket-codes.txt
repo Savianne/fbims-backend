@@ -1,0 +1,8 @@
+NEW_MEMBERS_RECORD_ADDED //emit when new member is added
+DELETED_MEMBER_RECORD //emit when a member is deleted
+ADDED_NEW_MINISTRY //emit when new ministry is added
+DELETED_MINISTRY //emit when a ministry is deleted
+ADDED_NEW_ORGANIZATION //emit when new organization is added
+DELETED_ORGANIZATION //emit when a organization is deleted
+ADDED_NEW_MINISTRY_MEMBER_TO${ministry_uid} //emit when there is a new member added to specific ministry
+DELETED_MINISTRY_MEMBER_FROM${ministry_uid} //emit when deleted member in a specific ministry

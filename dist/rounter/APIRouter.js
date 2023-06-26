@@ -15,6 +15,11 @@ const get_ministry_members_1 = __importDefault(require("../request-handler/get-m
 const geall_organization_of_congregation_handler_1 = __importDefault(require("../request-handler/geall-organization-of-congregation-handler"));
 const get_organization_members_1 = __importDefault(require("../request-handler/get-organization-members"));
 const get_ministry_info_handler_1 = __importDefault(require("../request-handler/get-ministry-info-handler"));
+const get_organization_info_1 = __importDefault(require("../request-handler/get-organization-info"));
+const search_members_for_ministry_membership_handler_1 = __importDefault(require("../request-handler/search-members-for-ministry-membership-handler"));
+const search_members_for_adding_to_organization_1 = __importDefault(require("../request-handler/search-members-for-adding-to-organization"));
+const addMemberToMinistryHandler_1 = __importDefault(require("../request-handler/addMemberToMinistryHandler"));
+const addMemberToOrganizationHandler_1 = __importDefault(require("../request-handler/addMemberToOrganizationHandler"));
 const APIRouter = express_1.default.Router();
 APIRouter.use((req, res, next) => {
     const request = req;
@@ -41,4 +46,9 @@ APIRouter.post('/get-organizations', geall_organization_of_congregation_handler_
 APIRouter.post("/get-ministry-members/", get_ministry_members_1.default);
 APIRouter.post("/get-organization-member", get_organization_members_1.default);
 APIRouter.post("/get-ministry-info", get_ministry_info_handler_1.default);
+APIRouter.post('/get-organization-info', get_organization_info_1.default);
+APIRouter.post('/find-member', search_members_for_ministry_membership_handler_1.default);
+APIRouter.post('/find-member-for-org', search_members_for_adding_to_organization_1.default);
+APIRouter.post('/add-member-to-ministry', addMemberToMinistryHandler_1.default);
+APIRouter.post('/add-member-to-organization', addMemberToOrganizationHandler_1.default);
 exports.default = APIRouter;

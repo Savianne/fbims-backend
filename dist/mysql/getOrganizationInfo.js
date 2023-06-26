@@ -13,23 +13,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getMinistryMembers(ministryUID) {
+function getOrganizationInfo(orgUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const getAllMembersOfTheMinistryQuery = `
-        SELECT m.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar, mpi.gender, mpi.date_of_birth AS dateOfBirth
-        FROM ministry_members AS mm
-        JOIN members AS m ON mm.member_uid = m.member_uid
-        JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
-        JOIN full_name AS fn ON mpi.full_name = fn.id
-        LEFT JOIN avatar AS a ON m.avatar = a.id
-        WHERE mm.ministry_uid = ?
-        `;
-            promisePool.query(getAllMembersOfTheMinistryQuery, [ministryUID])
+            const getOrgQuery = `
+        SELECT o.organization_uid AS organizationUID, oi.organization_name  AS organizationName, oi.description, a.avatar
+        FROM organizations AS o
+        JOIN organization_info AS oi ON o.organization_info = oi.id
+        LEFT JOIN avatar AS a ON o.avatar = a.id
+        WHERE o.organization_uid = ?`;
+            promisePool.query(getOrgQuery, [orgUID])
                 .then(result => {
                 const data = result[0];
-                resolve({ success: true, data: data });
+                resolve({ success: true, data: data[0] });
             })
                 .catch(err => {
                 console.log(err);
@@ -38,4 +35,4 @@ function getMinistryMembers(ministryUID) {
         });
     });
 }
-exports.default = getMinistryMembers;
+exports.default = getOrganizationInfo;

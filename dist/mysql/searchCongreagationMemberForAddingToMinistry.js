@@ -13,23 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getMinistryMembers(ministryUID) {
+function searchMemberForMinistryMembership(ministryUID, congregation, searchTerm) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const getAllMembersOfTheMinistryQuery = `
-        SELECT m.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar, mpi.gender, mpi.date_of_birth AS dateOfBirth
-        FROM ministry_members AS mm
-        JOIN members AS m ON mm.member_uid = m.member_uid
+            const searchMemberQuery = `
+        SELECT m.member_uid AS memberUID, a.avatar, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, fn.ext_name AS extName, mm.ministry_uid AS ministryUID
+        FROM congregation_members AS cm
+        JOIN members AS m ON cm.member_uid = m.member_uid AND cm.congregation_uid = ?
+        LEFT JOIN ministry_members AS mm ON m.member_uid = mm.member_uid AND mm.ministry_uid = ?
         JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
         JOIN full_name AS fn ON mpi.full_name = fn.id
         LEFT JOIN avatar AS a ON m.avatar = a.id
-        WHERE mm.ministry_uid = ?
-        `;
-            promisePool.query(getAllMembersOfTheMinistryQuery, [ministryUID])
+         WHERE CONCAT_WS(' ', fn.first_name, fn.middle_name, fn.surname, fn.ext_name) LIKE "%?%"`;
+            promisePool.query(searchMemberQuery, [congregation, ministryUID, searchTerm])
                 .then(result => {
                 const data = result[0];
-                resolve({ success: true, data: data });
+                resolve({ success: true, data: data[0] });
             })
                 .catch(err => {
                 console.log(err);
@@ -38,4 +38,4 @@ function getMinistryMembers(ministryUID) {
         });
     });
 }
-exports.default = getMinistryMembers;
+exports.default = searchMemberForMinistryMembership;

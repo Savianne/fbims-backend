@@ -13,29 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getMinistryMembers(ministryUID) {
+function addMemberToMinistry(minstryUID, memberUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
-        return new Promise((resolve, reject) => {
-            const getAllMembersOfTheMinistryQuery = `
-        SELECT m.member_uid AS memberUID, fn.first_name AS firstName, fn.middle_name AS middleName, fn.surname, a.avatar, mpi.gender, mpi.date_of_birth AS dateOfBirth
-        FROM ministry_members AS mm
-        JOIN members AS m ON mm.member_uid = m.member_uid
-        JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
-        JOIN full_name AS fn ON mpi.full_name = fn.id
-        LEFT JOIN avatar AS a ON m.avatar = a.id
-        WHERE mm.ministry_uid = ?
-        `;
-            promisePool.query(getAllMembersOfTheMinistryQuery, [ministryUID])
-                .then(result => {
-                const data = result[0];
-                resolve({ success: true, data: data });
-            })
-                .catch(err => {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isExist = ((yield promisePool.query("SELECT COUNT(*) AS count FROM ministry_members WHERE ministry_uid = ? AND member_uid = ?", [minstryUID, memberUID]))[0][0]).count;
+                if (isExist)
+                    return reject({ success: false, error: "Duplicate Entry" });
+                const addMemberToMinistryQuery = `INSERT INTO ministry_members (ministry_uid, member_uid) VALUES (?, ?)`;
+                const isAdded = (yield promisePool.query(addMemberToMinistryQuery, [minstryUID, memberUID]))[0].affectedRows;
+                isAdded ? resolve({ success: true }) : reject({ success: false, error: "Faild to Add" });
+            }
+            catch (err) {
                 console.log(err);
-                reject({ success: false, error: err });
-            });
-        });
+                reject({ success: false, error: "Internal Server Error" });
+            }
+        }));
     });
 }
-exports.default = getMinistryMembers;
+exports.default = addMemberToMinistry;

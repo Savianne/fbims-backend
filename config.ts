@@ -4,7 +4,7 @@ interface IConfig {
 }
 
 const config:IConfig = {
-    allowCORS: "*",
+    allowCORS: false
 }
 
 export default config;

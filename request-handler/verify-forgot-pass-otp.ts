@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 import { IUser } from "../types/IUser";
 
 import { get5MinsExpirationDate } from "../controller/get5minsExpDate";
+
+dotenv.config();
 
 const verifyForgotPassOTP = (req: Request, res: Response) => {
     const otpInput = req.body.otp;
