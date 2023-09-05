@@ -18,7 +18,7 @@ function getAllOrganizationOfCongregation(congregation) {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
             const getAllOrganizationOfCongregationQuery = `
-        SELECT co.organization_uid AS organizationUID, o.avatar, oi.description, oi.organization_name AS organizationName
+        SELECT co.organization_uid AS organizationUID, a.avatar, oi.description, oi.organization_name AS organizationName
         FROM congregation_organizations AS co
         JOIN organizations AS o ON co.organization_uid = o.organization_uid
         JOIN organization_info AS oi ON o.organization_info = oi.id

@@ -20,6 +20,10 @@ const search_members_for_ministry_membership_handler_1 = __importDefault(require
 const search_members_for_adding_to_organization_1 = __importDefault(require("../request-handler/search-members-for-adding-to-organization"));
 const addMemberToMinistryHandler_1 = __importDefault(require("../request-handler/addMemberToMinistryHandler"));
 const addMemberToOrganizationHandler_1 = __importDefault(require("../request-handler/addMemberToOrganizationHandler"));
+const get_member_information_by_uid_1 = __importDefault(require("../request-handler/get-member-information-by-uid"));
+const delete_ministry_handler_1 = __importDefault(require("../request-handler/delete-ministry-handler"));
+const delete_organization_hnadler_1 = __importDefault(require("../request-handler/delete-organization-hnadler"));
+const remove_ministry_member_handler_1 = __importDefault(require("../request-handler/remove-ministry-member-handler"));
 const APIRouter = express_1.default.Router();
 APIRouter.use((req, res, next) => {
     const request = req;
@@ -51,4 +55,8 @@ APIRouter.post('/find-member', search_members_for_ministry_membership_handler_1.
 APIRouter.post('/find-member-for-org', search_members_for_adding_to_organization_1.default);
 APIRouter.post('/add-member-to-ministry', addMemberToMinistryHandler_1.default);
 APIRouter.post('/add-member-to-organization', addMemberToOrganizationHandler_1.default);
+APIRouter.get('/get-members-record/:memberUID', get_member_information_by_uid_1.default);
+APIRouter.delete('/delete-ministry/:ministryUID', delete_ministry_handler_1.default);
+APIRouter.delete('/delete-organization/:organizationUID', delete_organization_hnadler_1.default);
+APIRouter.delete('/remove-ministry-member', remove_ministry_member_handler_1.default);
 exports.default = APIRouter;

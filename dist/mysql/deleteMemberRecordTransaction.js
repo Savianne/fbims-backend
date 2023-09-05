@@ -37,7 +37,7 @@ function deleteMemberRecordTransactionPromise(memberUID) {
         const deletePersonalInfoQ = "DELETE FROM members_personal_info WHERE id = ?";
         const deleteContactInfoQ = "DELETE FROM members_contact_info WHERE id = ?";
         const deleteBaptismInfoQ = "DELETE FROM baptism_info WHERE id = ?";
-        const deleteAvatarQ = "DELETE FORM avatar WHERE id = ?";
+        const deleteAvatarQ = "DELETE FROM avatar WHERE id = ?";
         const deleteMembersQ = "DELETE FROM members WHERE member_uid = ?";
         const deleteCongragationMemberQ = "DELETE FROM congregation_members WHERE member_uid = ?";
         const promisePool = pool_1.default.promise();
@@ -68,6 +68,7 @@ function deleteMemberRecordTransactionPromise(memberUID) {
                     .catch((beginTransactionError) => {
                     connection.rollback();
                     connection.release();
+                    console.log(beginTransactionError);
                     reject({
                         querySuccess: false,
                         error: beginTransactionError,

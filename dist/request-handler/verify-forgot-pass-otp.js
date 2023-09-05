@@ -14,7 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const get5minsExpDate_1 = require("../controller/get5minsExpDate");
+dotenv_1.default.config();
 const verifyForgotPassOTP = (req, res) => {
     const otpInput = req.body.otp;
     const pendingOTPCookie = req.cookies.pendingOTP;

@@ -18,6 +18,10 @@ import searchMemberForAddingMinistryMembersHandler from '../request-handler/sear
 import searchMemberForAddingOrganizationMembersHandler from '../request-handler/search-members-for-adding-to-organization';
 import addMemberToMinistryHandler from '../request-handler/addMemberToMinistryHandler';
 import addMemberToOrganizationHandler from '../request-handler/addMemberToOrganizationHandler';
+import getMemberInfoByUIDHandler from '../request-handler/get-member-information-by-uid';
+import deleteMinistryHandler from '../request-handler/delete-ministry-handler';
+import deleteOrganizationHandler from '../request-handler/delete-organization-hnadler';
+import removeMinistryMemberHandler from '../request-handler/remove-ministry-member-handler';
 
 const APIRouter = express.Router();
 
@@ -67,5 +71,13 @@ APIRouter.post('/find-member-for-org', searchMemberForAddingOrganizationMembersH
 APIRouter.post('/add-member-to-ministry', addMemberToMinistryHandler)
 
 APIRouter.post('/add-member-to-organization', addMemberToOrganizationHandler);
+
+APIRouter.get('/get-members-record/:memberUID', getMemberInfoByUIDHandler)
+
+APIRouter.delete('/delete-ministry/:ministryUID', deleteMinistryHandler);
+
+APIRouter.delete('/delete-organization/:organizationUID', deleteOrganizationHandler);
+
+APIRouter.delete('/remove-ministry-member', removeMinistryMemberHandler);
 
 export default APIRouter;

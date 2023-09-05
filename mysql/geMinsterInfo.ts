@@ -16,8 +16,9 @@ async function getMinistryInfo(minstryUID: string): Promise<{ success: boolean, 
         promisePool.query(getMinistryQuery, [minstryUID])
         .then(result => {
             const data = (result as RowDataPacket[][])[0];
-    
-            resolve({success: true, data: data[0]})
+            if(data.length) {
+                resolve({success: true, data: data[0]})
+            } else throw "Record not found!"
         })
         .catch(err => {
             console.log(err)

@@ -76,6 +76,10 @@ function verifyUserMiddleware(req, res, next) {
                     }
                 }));
             }
+            else {
+                req.user = null;
+                return next();
+            }
         }
         if (decoded) {
             const userDecoded = decoded;

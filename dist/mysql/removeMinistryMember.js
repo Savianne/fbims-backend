@@ -13,30 +13,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getMinistryInfo(minstryUID) {
+function removeMinistryMember(memberUID, ministryUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const getMinistryQuery = `
-        SELECT m.ministry_uid AS ministryUID, mi.ministry_name AS ministryName, mi.description, a.avatar
-        FROM ministry AS m
-        JOIN ministry_info AS mi ON m.ministry_info = mi.id
-        LEFT JOIN avatar AS a ON m.avatar = a.id
-        WHERE m.ministry_uid = ?`;
-            promisePool.query(getMinistryQuery, [minstryUID])
+            promisePool.query("DELETE FROM ministry_members WHERE member_uid = ? AND ministry_uid = ?", [memberUID, ministryUID])
                 .then(result => {
-                const data = result[0];
-                if (data.length) {
-                    resolve({ success: true, data: data[0] });
+                if (result[0].affectedRows > 0) {
+                    resolve({ querySuccess: true });
                 }
                 else
-                    throw "Record not found!";
+                    throw "No changes has made";
             })
                 .catch(err => {
                 console.log(err);
-                reject({ success: false, error: err });
+                reject({ querySuccess: false, error: err });
             });
         });
     });
 }
-exports.default = getMinistryInfo;
+exports.default = removeMinistryMember;

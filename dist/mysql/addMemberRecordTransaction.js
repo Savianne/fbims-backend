@@ -23,7 +23,7 @@ function addMemberRecordTransactionPromise(memberRecord, adminInfo) {
         const permanentAddress = memberRecord.permanentAddress;
         const baptismInformation = memberRecord.baptismInformation;
         const promisePool = pool_1.default.promise();
-        const addFullNameQuery = "INSERT INTO full_name (first_name, surname, middle_name, ext_name) VALUES (?, ?, ?, ?)";
+        const addFullNameQuery = "INSERT INTO full_name (first_name, middle_name, surname, ext_name) VALUES (?, ?, ?, ?)";
         const addPHPermanentAddressQuery = "INSERT INTO local_address_ph (region, province, mun_city, barangay) VALUES (?, ?, ?, ?)";
         const addNonPHPermanentAddressQuery = "INSERT INTO outside_ph_address (address) VALUES (?)";
         const addPHCurrentAddressQuery = "INSERT INTO local_address_ph (region, province, mun_city, barangay) VALUES (?, ?, ?, ?)";

@@ -82,6 +82,9 @@ function verifyUserMiddleware(req: IUserRequest, res: Response, next: NextFuncti
                         return next();
                     }
                 })
+            } else {
+                req.user = null;
+                return next();
             }
 
         }
