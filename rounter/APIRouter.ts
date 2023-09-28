@@ -23,6 +23,7 @@ import deleteMinistryHandler from '../request-handler/delete-ministry-handler';
 import deleteOrganizationHandler from '../request-handler/delete-organization-hnadler';
 import removeMinistryMemberHandler from '../request-handler/remove-ministry-member-handler';
 import removeOrganizationMemberHandler from '../request-handler/remove-organization-member-handler';
+import updateMemberDataHandler from '../request-handler/update-member-data-handler';
 
 const APIRouter = express.Router();
 
@@ -82,5 +83,9 @@ APIRouter.delete('/delete-organization/:organizationUID', deleteOrganizationHand
 APIRouter.delete('/remove-ministry-member', removeMinistryMemberHandler);
 
 APIRouter.delete('/remove-organization-member', removeOrganizationMemberHandler);
+
+APIRouter.patch('/update-member-data/:category/:memberUID', updateMemberDataHandler);
+
+
 
 export default APIRouter;

@@ -25,6 +25,7 @@ const delete_ministry_handler_1 = __importDefault(require("../request-handler/de
 const delete_organization_hnadler_1 = __importDefault(require("../request-handler/delete-organization-hnadler"));
 const remove_ministry_member_handler_1 = __importDefault(require("../request-handler/remove-ministry-member-handler"));
 const remove_organization_member_handler_1 = __importDefault(require("../request-handler/remove-organization-member-handler"));
+const update_member_data_handler_1 = __importDefault(require("../request-handler/update-member-data-handler"));
 const APIRouter = express_1.default.Router();
 APIRouter.use((req, res, next) => {
     const request = req;
@@ -61,4 +62,5 @@ APIRouter.delete('/delete-ministry/:ministryUID', delete_ministry_handler_1.defa
 APIRouter.delete('/delete-organization/:organizationUID', delete_organization_hnadler_1.default);
 APIRouter.delete('/remove-ministry-member', remove_ministry_member_handler_1.default);
 APIRouter.delete('/remove-organization-member', remove_organization_member_handler_1.default);
+APIRouter.patch('/update-member-data/:category/:memberUID', update_member_data_handler_1.default);
 exports.default = APIRouter;
