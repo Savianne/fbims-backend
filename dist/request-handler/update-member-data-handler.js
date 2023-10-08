@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const updateMemberBasicInfo_1 = __importDefault(require("../mysql/updateMemberBasicInfo"));
 const updateCurrentAddress_1 = __importDefault(require("../mysql/updateCurrentAddress"));
 const updatePermanentAddress_1 = __importDefault(require("../mysql/updatePermanentAddress"));
+const updateContactInfo_1 = __importDefault(require("../mysql/updateContactInfo"));
 const updateMemberDataHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const category = req.params.category;
     const memberUID = req.params.memberUID;
@@ -34,8 +35,7 @@ const updateMemberDataHandler = (req, res) => __awaiter(void 0, void 0, void 0, 
             }
             break;
         case "address":
-            const label = updateData.label;
-            if (label == "current") {
+            if (updateData.label == "current") {
                 try {
                     const result = yield (0, updateCurrentAddress_1.default)(memberUID, updateData);
                     if (result.querySuccess) {
@@ -48,7 +48,7 @@ const updateMemberDataHandler = (req, res) => __awaiter(void 0, void 0, void 0, 
                     res.json({ success: false, error: err });
                 }
             }
-            else if (label == "permanent") {
+            else if (updateData.label == "permanent") {
                 try {
                     const result = yield (0, updatePermanentAddress_1.default)(memberUID, updateData);
                     if (result.querySuccess) {
@@ -63,7 +63,18 @@ const updateMemberDataHandler = (req, res) => __awaiter(void 0, void 0, void 0, 
             }
             break;
         case "contact":
-            console.log(category);
+            try {
+                const result = yield (0, updateContactInfo_1.default)(memberUID, updateData);
+                if (result.querySuccess) {
+                    res.json({ success: true });
+                }
+                else
+                    throw "No changes has made";
+            }
+            catch (err) {
+                console.log(err);
+                res.json({ success: false, error: err });
+            }
     }
 });
 exports.default = updateMemberDataHandler;

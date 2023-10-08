@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import updateMemberBasicInfo from "../mysql/updateMemberBasicInfo";
 import updateCurrentAddress from "../mysql/updateCurrentAddress";
 import updatePermanentAddress from "../mysql/updatePermanentAddress";
+import updateContactInfo from "../mysql/updateContactInfo";
 
 const updateMemberDataHandler = async (req: Request, res:Response) => {
     const category = req.params.category;
@@ -20,9 +21,7 @@ const updateMemberDataHandler = async (req: Request, res:Response) => {
             }
         break;
         case "address":
-            const label = updateData.label;
-
-            if(label == "current") {
+            if(updateData.label == "current") {
                 try {
                     const result = await updateCurrentAddress(memberUID, updateData);
                     if(result.querySuccess) {
@@ -31,7 +30,7 @@ const updateMemberDataHandler = async (req: Request, res:Response) => {
                 } catch (err) {
                     res.json({success: false, error: err});
                 }
-            } else if(label == "permanent") {
+            } else if(updateData.label == "permanent") {
                 try {
                     const result = await updatePermanentAddress(memberUID, updateData);
                     if(result.querySuccess) {
@@ -43,7 +42,15 @@ const updateMemberDataHandler = async (req: Request, res:Response) => {
             }
         break;
         case "contact":
-            console.log(category);
+            try {
+                const result = await updateContactInfo(memberUID, updateData);
+                if(result.querySuccess) {
+                    res.json({success: true})
+                } else throw "No changes has made"
+            } catch (err) {
+                console.log(err)
+                res.json({success: false, error: err});
+            }
     }
 };
 

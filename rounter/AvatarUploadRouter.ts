@@ -1,7 +1,7 @@
 import express, { RequestHandler } from 'express';
 import fs from "fs";
 import path from "path";
-
+import { customAlphabet, nanoid } from 'nanoid';
 import { IUserRequest } from '../types/IUserRequest';
 import multer from 'multer';
 
@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
       cb(null, './tmp-upload'); // Specify the destination folder for uploaded files
     },
     filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`); // Set the filename for uploaded files
+      cb(null, `${nanoid(15)}`); // Set the filename for uploaded files
     },
   });
   
@@ -51,8 +51,6 @@ AvatarUploadRouter.post('/add-to-temp', (req, res) => {
     const imageName = req.params.imageName;
     const imagePath = path.join(imagesFolder, imageName);
 
-    console.log(imagePath)
-  
     try {
       // Check if the image file exists
       if (fs.existsSync(imagePath)) {

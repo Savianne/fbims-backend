@@ -24,6 +24,8 @@ import deleteOrganizationHandler from '../request-handler/delete-organization-hn
 import removeMinistryMemberHandler from '../request-handler/remove-ministry-member-handler';
 import removeOrganizationMemberHandler from '../request-handler/remove-organization-member-handler';
 import updateMemberDataHandler from '../request-handler/update-member-data-handler';
+import updateDisplayPictureHandler from '../request-handler/update-display-picture-handler';
+import getMemberInvolvementsHandler from '../request-handler/get-member-involvements-hadler';
 
 const APIRouter = express.Router();
 
@@ -74,7 +76,9 @@ APIRouter.post('/add-member-to-ministry', addMemberToMinistryHandler)
 
 APIRouter.post('/add-member-to-organization', addMemberToOrganizationHandler);
 
-APIRouter.get('/get-members-record/:memberUID', getMemberInfoByUIDHandler)
+APIRouter.get('/get-members-record/:memberUID', getMemberInfoByUIDHandler);
+
+APIRouter.get('/get-member-involvements/:memberUID', getMemberInvolvementsHandler)
 
 APIRouter.delete('/delete-ministry/:ministryUID', deleteMinistryHandler);
 
@@ -85,6 +89,8 @@ APIRouter.delete('/remove-ministry-member', removeMinistryMemberHandler);
 APIRouter.delete('/remove-organization-member', removeOrganizationMemberHandler);
 
 APIRouter.patch('/update-member-data/:category/:memberUID', updateMemberDataHandler);
+
+APIRouter.patch('/update-display-picture/:query/:memberUID/:dp', updateDisplayPictureHandler);
 
 
 

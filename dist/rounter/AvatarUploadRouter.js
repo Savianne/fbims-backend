@@ -7,6 +7,7 @@ exports.upload = void 0;
 const express_1 = __importDefault(require("express"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const nanoid_1 = require("nanoid");
 const multer_1 = __importDefault(require("multer"));
 // Set up multer storage
 const storage = multer_1.default.diskStorage({
@@ -14,7 +15,7 @@ const storage = multer_1.default.diskStorage({
         cb(null, './tmp-upload'); // Specify the destination folder for uploaded files
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`); // Set the filename for uploaded files
+        cb(null, `${(0, nanoid_1.nanoid)(15)}`); // Set the filename for uploaded files
     },
 });
 // Create a multer upload instance
@@ -52,7 +53,6 @@ AvatarUploadRouter.delete('/delete-temp-upload/:imageName', (req, res) => {
     const imagesFolder = path_1.default.join(__dirname, '../../tmp-upload');
     const imageName = req.params.imageName;
     const imagePath = path_1.default.join(imagesFolder, imageName);
-    console.log(imagePath);
     try {
         // Check if the image file exists
         if (fs_1.default.existsSync(imagePath)) {
