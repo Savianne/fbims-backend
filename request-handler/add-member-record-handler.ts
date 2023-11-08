@@ -23,7 +23,7 @@ const addMemberRecord = async (req: Request, res: Response) => {
             })
         } 
 
-        io.emit('NEW_MEMBERS_RECORD_ADDED');
+        io.emit(`${congregationUID}-NEW_MEMBERS_RECORD_ADDED`);
         res.json(result);
     })
     .catch(err => {

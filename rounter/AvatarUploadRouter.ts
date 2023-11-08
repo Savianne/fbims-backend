@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
       cb(null, './tmp-upload'); // Specify the destination folder for uploaded files
     },
     filename: (req, file, cb) => {
-      cb(null, `${nanoid(15)}`); // Set the filename for uploaded files
+      cb(null, `${nanoid(15)}.${path.extname(file.originalname)}`); // Set the filename for uploaded files
     },
   });
   

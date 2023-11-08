@@ -12,21 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const __1 = require("..");
-const addMemberToOrganization_1 = __importDefault(require("../mysql/addMemberToOrganization"));
-const addMemberToOrganizationHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    const organizationUID = req.body.organizationUID;
-    const memberUID = req.body.memberUID;
+const updateOrganizationDp_1 = __importDefault(require("../mysql/updateOrganizationDp"));
+const updateOrgDisplayPictureHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.params.query;
+    const orgUID = req.params.orgUID;
+    const picture = req.params.dp;
     try {
-        const result = yield (0, addMemberToOrganization_1.default)(organizationUID, memberUID);
-        if (result.success) {
-            __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_ORGANIZATION_MEMBER_TO${organizationUID}`);
+        const result = yield (0, updateOrganizationDp_1.default)(orgUID, { picture, query: query });
+        if (result.querySuccess) {
+            res.json({ success: true });
         }
-        res.json(result);
+        else
+            throw "No changes has made";
     }
     catch (err) {
-        res.json(err);
+        res.json({ success: false, error: err });
     }
 });
-exports.default = addMemberToOrganizationHandler;
+exports.default = updateOrgDisplayPictureHandler;

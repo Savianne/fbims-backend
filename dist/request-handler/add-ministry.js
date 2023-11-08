@@ -27,12 +27,12 @@ const addMinistryHandler = (req, res) => __awaiter(void 0, void 0, void 0, funct
                     if (err) {
                         console.log(err);
                     }
-                    __1.io.emit('ADDED_NEW_MINISTRY');
+                    __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_MINISTRY`);
                     res.json({ success: true });
                 });
             }
             else {
-                __1.io.emit('ADDED_NEW_MINISTRY');
+                __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_MINISTRY`);
                 res.json({ success: true });
             }
         }

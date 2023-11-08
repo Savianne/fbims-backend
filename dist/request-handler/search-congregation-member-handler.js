@@ -12,21 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const __1 = require("..");
-const addMemberToOrganization_1 = __importDefault(require("../mysql/addMemberToOrganization"));
-const addMemberToOrganizationHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user;
-    const organizationUID = req.body.organizationUID;
-    const memberUID = req.body.memberUID;
-    try {
-        const result = yield (0, addMemberToOrganization_1.default)(organizationUID, memberUID);
-        if (result.success) {
-            __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_ORGANIZATION_MEMBER_TO${organizationUID}`);
-        }
+const searchCongregationMembers_1 = __importDefault(require("../mysql/searchCongregationMembers"));
+const searchCongregationMembersHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const request = req;
+    const congregationUID = (_a = request.user) === null || _a === void 0 ? void 0 : _a.congregation;
+    const searchTerm = req.body.searchTerm;
+    (0, searchCongregationMembers_1.default)(congregationUID, searchTerm)
+        .then(result => {
         res.json(result);
-    }
-    catch (err) {
+    })
+        .catch(err => {
+        console.log(err);
         res.json(err);
-    }
+    });
 });
-exports.default = addMemberToOrganizationHandler;
+exports.default = searchCongregationMembersHandler;

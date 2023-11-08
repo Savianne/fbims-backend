@@ -29,12 +29,12 @@ const addOrganizationHandler = (req, res) => __awaiter(void 0, void 0, void 0, f
                     if (err) {
                         console.log(err);
                     }
-                    __1.io.emit('ADDED_NEW_ORGANIZATION');
+                    __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_ORGANIZATION`);
                     res.json({ success: true });
                 });
             }
             else {
-                __1.io.emit('ADDED_NEW_ORGANIZATION');
+                __1.io.emit(`${user === null || user === void 0 ? void 0 : user.congregation}-ADDED_NEW_ORGANIZATION`);
                 res.json({ success: true });
             }
         }

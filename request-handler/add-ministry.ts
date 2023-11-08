@@ -17,12 +17,12 @@ const addMinistryHandler = async (req: Request, res:Response) => {
                     if(err) {
                         console.log(err);
                     }
-                    io.emit('ADDED_NEW_MINISTRY');
+                    io.emit(`${user?.congregation}-ADDED_NEW_MINISTRY`);
                     res.json({success: true});
                 })
             } 
             else {
-                io.emit('ADDED_NEW_MINISTRY');
+                io.emit(`${user?.congregation}-ADDED_NEW_MINISTRY`);
                 res.json({success: true});
             }
         } else throw result;

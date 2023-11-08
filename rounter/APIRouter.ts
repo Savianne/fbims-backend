@@ -2,6 +2,10 @@ import express, { RequestHandler } from 'express';
 
 import { IUserRequest } from '../types/IUserRequest';
 
+//Routers
+import AttendanceRouter from './AttendanceRouter';
+
+//Request handlers
 import addMemberRecord from '../request-handler/add-member-record-handler';
 import getRecordsCountHandler from '../request-handler/get-records-count-handler';
 import getCongregationMembersHandler from '../request-handler/get-members-list-handler';
@@ -26,6 +30,11 @@ import removeOrganizationMemberHandler from '../request-handler/remove-organizat
 import updateMemberDataHandler from '../request-handler/update-member-data-handler';
 import updateDisplayPictureHandler from '../request-handler/update-display-picture-handler';
 import getMemberInvolvementsHandler from '../request-handler/get-member-involvements-hadler';
+import updateMinistryInfoHandler from '../request-handler/update-ministy-info';
+import updateOrganizationInfoHandler from '../request-handler/update-organization-info';
+import updateMinistryDisplayPictureHandler from '../request-handler/update-ministry-dp-handler';
+import updateOrgDisplayPictureHandler from '../request-handler/update-organization-dp';
+import searchCongregationMembersHandler from '../request-handler/search-congregation-member-handler';
 
 const APIRouter = express.Router();
 
@@ -38,6 +47,8 @@ APIRouter.use((req, res, next) => {
     }
     else next()
 });
+
+APIRouter.use('/attendance', AttendanceRouter);
 
 APIRouter.post('/get-admin-info', (req, res) => {
     const request = req as IUserRequest;
@@ -92,6 +103,15 @@ APIRouter.patch('/update-member-data/:category/:memberUID', updateMemberDataHand
 
 APIRouter.patch('/update-display-picture/:query/:memberUID/:dp', updateDisplayPictureHandler);
 
+APIRouter.patch('/update-ministry-info/:ministryUID', updateMinistryInfoHandler);
+
+APIRouter.patch('/update-organization-info/:organizationUID', updateOrganizationInfoHandler);
+
+APIRouter.patch('/update-ministry-dp/:query/:ministryUID/:dp', updateMinistryDisplayPictureHandler);
+
+APIRouter.patch('/update-organization-dp/:query/:orgUID/:dp', updateOrgDisplayPictureHandler);
+
+APIRouter.post('/search-member', searchCongregationMembersHandler);
 
 
 export default APIRouter;

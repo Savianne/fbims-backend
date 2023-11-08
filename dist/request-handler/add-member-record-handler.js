@@ -30,7 +30,7 @@ const addMemberRecord = (req, res) => __awaiter(void 0, void 0, void 0, function
                 }
             });
         }
-        index_1.io.emit('NEW_MEMBERS_RECORD_ADDED');
+        index_1.io.emit(`${congregationUID}-NEW_MEMBERS_RECORD_ADDED`);
         res.json(result);
     })
         .catch(err => {

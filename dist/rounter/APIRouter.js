@@ -4,6 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+//Routers
+const AttendanceRouter_1 = __importDefault(require("./AttendanceRouter"));
+//Request handlers
 const add_member_record_handler_1 = __importDefault(require("../request-handler/add-member-record-handler"));
 const get_records_count_handler_1 = __importDefault(require("../request-handler/get-records-count-handler"));
 const get_members_list_handler_1 = __importDefault(require("../request-handler/get-members-list-handler"));
@@ -28,6 +31,11 @@ const remove_organization_member_handler_1 = __importDefault(require("../request
 const update_member_data_handler_1 = __importDefault(require("../request-handler/update-member-data-handler"));
 const update_display_picture_handler_1 = __importDefault(require("../request-handler/update-display-picture-handler"));
 const get_member_involvements_hadler_1 = __importDefault(require("../request-handler/get-member-involvements-hadler"));
+const update_ministy_info_1 = __importDefault(require("../request-handler/update-ministy-info"));
+const update_organization_info_1 = __importDefault(require("../request-handler/update-organization-info"));
+const update_ministry_dp_handler_1 = __importDefault(require("../request-handler/update-ministry-dp-handler"));
+const update_organization_dp_1 = __importDefault(require("../request-handler/update-organization-dp"));
+const search_congregation_member_handler_1 = __importDefault(require("../request-handler/search-congregation-member-handler"));
 const APIRouter = express_1.default.Router();
 APIRouter.use((req, res, next) => {
     const request = req;
@@ -39,6 +47,7 @@ APIRouter.use((req, res, next) => {
     else
         next();
 });
+APIRouter.use('/attendance', AttendanceRouter_1.default);
 APIRouter.post('/get-admin-info', (req, res) => {
     const request = req;
     res.json(request.user);
@@ -67,4 +76,9 @@ APIRouter.delete('/remove-ministry-member', remove_ministry_member_handler_1.def
 APIRouter.delete('/remove-organization-member', remove_organization_member_handler_1.default);
 APIRouter.patch('/update-member-data/:category/:memberUID', update_member_data_handler_1.default);
 APIRouter.patch('/update-display-picture/:query/:memberUID/:dp', update_display_picture_handler_1.default);
+APIRouter.patch('/update-ministry-info/:ministryUID', update_ministy_info_1.default);
+APIRouter.patch('/update-organization-info/:organizationUID', update_organization_info_1.default);
+APIRouter.patch('/update-ministry-dp/:query/:ministryUID/:dp', update_ministry_dp_handler_1.default);
+APIRouter.patch('/update-organization-dp/:query/:orgUID/:dp', update_organization_dp_1.default);
+APIRouter.post('/search-member', search_congregation_member_handler_1.default);
 exports.default = APIRouter;
