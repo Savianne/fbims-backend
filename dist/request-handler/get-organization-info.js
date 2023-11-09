@@ -17,7 +17,6 @@ const getOrganizationInfoHandler = (req, res) => __awaiter(void 0, void 0, void 
     const orgUID = req.body.data;
     try {
         const result = yield (0, getOrganizationInfo_1.default)(orgUID);
-        console.log(result);
         res.json(result);
     }
     catch (err) {

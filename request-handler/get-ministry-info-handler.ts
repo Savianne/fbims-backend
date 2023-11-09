@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IUserRequest } from "../types/IUserRequest";
 
-import getMinistryInfo from "../mysql/geMinsterInfo";
+import getMinistryInfo from "../mysql/getMinistryInfo";
 
 const getMinistryInfoHandler = async (req: Request, res:Response) => {
     const ministryUID = req.body.data;

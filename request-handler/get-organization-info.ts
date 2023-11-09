@@ -8,7 +8,6 @@ const getOrganizationInfoHandler = async (req: Request, res:Response) => {
     
     try {
         const result = await getOrganizationInfo(orgUID)
-        console.log(result)
         res.json(result);
     }
     catch(err) {

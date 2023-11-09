@@ -12,11 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const geMinsterInfo_1 = __importDefault(require("../mysql/geMinsterInfo"));
+const getMinistryInfo_1 = __importDefault(require("../mysql/getMinistryInfo"));
 const getMinistryInfoHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const ministryUID = req.body.data;
     try {
-        const result = yield (0, geMinsterInfo_1.default)(ministryUID);
+        const result = yield (0, getMinistryInfo_1.default)(ministryUID);
         res.json(result);
     }
     catch (err) {

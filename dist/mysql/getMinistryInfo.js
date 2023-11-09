@@ -13,17 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function getOrganizationInfo(orgUID) {
+function getMinistryInfo(minstryUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
-            const getOrgQuery = `
-        SELECT o.organization_uid AS organizationUID, oi.organization_name  AS organizationName, oi.description, a.avatar
-        FROM organizations AS o
-        JOIN organization_info AS oi ON o.organization_info = oi.id
-        LEFT JOIN avatar AS a ON o.avatar = a.id
-        WHERE o.organization_uid = ?`;
-            promisePool.query(getOrgQuery, [orgUID])
+            const getMinistryQuery = `
+        SELECT m.ministry_uid AS ministryUID, mi.ministry_name AS ministryName, mi.description, a.avatar
+        FROM ministry AS m
+        JOIN ministry_info AS mi ON m.ministry_info = mi.id
+        LEFT JOIN avatar AS a ON m.avatar = a.id
+        WHERE m.ministry_uid = ?`;
+            promisePool.query(getMinistryQuery, [minstryUID])
                 .then(result => {
                 const data = result[0];
                 if (data.length) {
@@ -39,4 +39,4 @@ function getOrganizationInfo(orgUID) {
         });
     });
 }
-exports.default = getOrganizationInfo;
+exports.default = getMinistryInfo;
