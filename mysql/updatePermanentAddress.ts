@@ -31,8 +31,8 @@ async function updatePermanentAddress(memberUID: string, updateData: IUpdateAddr
                 //DELETE Address PH
                 getFKey.permanent_address_ph && await connection.query("DELETE FROM local_address_ph WHERE id = ?", [getFKey.permanent_address_ph]);
                 //Insert new values
-                const localAddress = updateData.addressType == "local" && typeof updateData.address !== "string"? (await connection.query("INSERT INTO local_address_ph (region, province, mun_city, barangay) VALUES(?, ?, ?, ?)", [updateData.address.region, updateData.address.province, updateData.address.cityOrMunicipality, updateData.address.barangay]) as OkPacket[])[0].insertId : null;
-                const outsidePHAddress = updateData.addressType == "outside" && typeof updateData.address == 'string'? (await connection.query('INSERT INTO outside_ph_address (address) VALUES(?)', [updateData.address]) as OkPacket[])[0].insertId : null;
+                const localAddress = updateData.addressType == "local" && typeof updateData.address !== "string"? (await connection.query("INSERT INTO local_address_ph (region, province, mun_city, barangay) VALUES(?, ?, ?, ?)", [updateData.address.region || null, updateData.address.province || null, updateData.address.cityOrMunicipality || null, updateData.address.barangay || null]) as OkPacket[])[0].insertId : null;
+                const outsidePHAddress = updateData.addressType == "outside" && typeof updateData.address == 'string'? (await connection.query('INSERT INTO outside_ph_address (address) VALUES(?)', [updateData.address || null]) as OkPacket[])[0].insertId : null;
                 //Remove currently related addresses FKeys
                 await connection.query('UPDATE members_personal_info SET permanent_address_ph = NULL, permanent_address_out_ph = NULL WHERE id = ?', [getFKey.personal_info_id]);
                 //Update new FKeys from members_personal_info table

@@ -21,10 +21,15 @@ function deleteAttendanceCategory(categoryUID) {
                 .then(connection => {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
-                    //here check if the category has entry
+                    //check if the category has entry
                     //if true cancel delete by throwing error
                     //else continue detetion
-                    //code soon
+                    const hasEntries = (yield connection.query(`
+                SELECT COUNT(*) AS totalEntries
+                FROM attendance_entries AS ae
+                WHERE ae.category_uid = ?`, [categoryUID]))[0][0].totalEntries;
+                    if (hasEntries)
+                        throw "Cannot delete category that has entries";
                     //Delete attendance category query
                     connection.query(`DELETE FROM attendance_categories WHERE uid = ?`, [categoryUID]);
                     //Delete category attenders query

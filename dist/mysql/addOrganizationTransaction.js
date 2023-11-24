@@ -27,7 +27,7 @@ function addOrganizatioTransactionPromise(adminInfo, orgData) {
                     const addAvatarQ = "INSERT INTO avatar (avatar) VALUES (?)";
                     const createOrgQ = "INSERT INTO organizations (organization_uid, organization_info, avatar) VALUES (?, ?, ?)";
                     const addOrganizationToCongregation = "INSERT INTO congregation_organizations (congregation_uid, organization_uid, created_by) VALUES (?, ?, ?)";
-                    const [organizationInfoQResult] = yield connection.query(addOrgInfoQ, [orgData.name, orgData.description]);
+                    const [organizationInfoQResult] = yield connection.query(addOrgInfoQ, [orgData.name || null, orgData.description || null]);
                     const organizationInfoID = organizationInfoQResult.insertId;
                     const [avatarQResult] = orgData.avatar ? yield connection.query(addAvatarQ, [orgData.avatar]) : [null];
                     const avatarID = orgData.avatar ? avatarQResult.insertId : null;

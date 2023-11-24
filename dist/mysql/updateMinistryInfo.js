@@ -26,7 +26,7 @@ function updateMinistryInfo(ministryUID, updateData) {
                 SELECT ministry_info from ministry WHERE ministry_uid = ?
                 `, [ministryUID]))[0])[0].ministry_info;
                     //Update Ministry info
-                    yield connection.query('UPDATE ministry_info SET ministry_name = ?, description = ? WHERE id = ?', [updateData.ministryName, updateData.description, ministryInfoKey]);
+                    yield connection.query('UPDATE ministry_info SET ministry_name = ?, description = ? WHERE id = ?', [updateData.ministryName || null, updateData.description || null, ministryInfoKey]);
                     //Commit 
                     connection.commit();
                     connection.release();

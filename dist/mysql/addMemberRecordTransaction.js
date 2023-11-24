@@ -41,22 +41,22 @@ function addMemberRecordTransactionPromise(memberRecord, adminInfo) {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
                     //Query 1: Need to get the insertId to be a FKey for fullName
-                    const [addFullNameQueryResult] = yield connection.query(addFullNameQuery, [personalInfo.firstName, personalInfo.middleName, personalInfo.surName, personalInfo.extName]);
+                    const [addFullNameQueryResult] = yield connection.query(addFullNameQuery, [personalInfo.firstName || null, personalInfo.middleName || null, personalInfo.surName || null, personalInfo.extName]);
                     const full_name_id = addFullNameQueryResult.insertId;
                     //Query 2: Insert Permanent Address, Need to check if the address is in the philippines
                     const permanentAddressInserId = yield (() => __awaiter(this, void 0, void 0, function* () {
-                        const [q] = permanentAddress.philippines ? yield connection.query(addPHPermanentAddressQuery, [permanentAddress.address.region, permanentAddress.address.province, permanentAddress.address.cityOrMunicipality, permanentAddress.address.barangay]) : yield connection.query(addNonPHPermanentAddressQuery, [permanentAddress.address]);
+                        const [q] = permanentAddress.philippines ? yield connection.query(addPHPermanentAddressQuery, [permanentAddress.address.region || null, permanentAddress.address.province || null, permanentAddress.address.cityOrMunicipality || null, permanentAddress.address.barangay || null]) : yield connection.query(addNonPHPermanentAddressQuery, [permanentAddress.address || null]);
                         const insertId = q.insertId;
                         return insertId;
                     }))();
                     //Query 3: Insert Current Address, Need to check if the address is in the philippines
                     const currentAddressInserId = yield (() => __awaiter(this, void 0, void 0, function* () {
-                        const [q] = currentAddress.philippines ? yield connection.query(addPHCurrentAddressQuery, [currentAddress.address.region, currentAddress.address.province, currentAddress.address.cityOrMunicipality, currentAddress.address.barangay]) : yield connection.query(addNonPHCurrentAddressQuery, [currentAddress.address]);
+                        const [q] = currentAddress.philippines ? yield connection.query(addPHCurrentAddressQuery, [currentAddress.address.region || null, currentAddress.address.province || null, currentAddress.address.cityOrMunicipality || null, currentAddress.address.barangay || null]) : yield connection.query(addNonPHCurrentAddressQuery, [currentAddress.address || null]);
                         const insertId = q.insertId;
                         return insertId;
                     }))();
                     //Query 4: Insert Members Personal Info including Address, insertId of fullName and both current and permanent address will be use. Need to get the insertId as a FKey for members_personal_info
-                    const [addMemberPersonalInfoQueryResult] = yield connection.query(addMemberPersonalInfoQuery, [full_name_id, personalInfo.dateOfBirth, personalInfo.gender, personalInfo.maritalStatus, currentAddress.philippines ? currentAddressInserId : null, permanentAddress.philippines ? permanentAddressInserId : null, !currentAddress.philippines ? currentAddressInserId : null, !permanentAddress.philippines ? permanentAddressInserId : null]);
+                    const [addMemberPersonalInfoQueryResult] = yield connection.query(addMemberPersonalInfoQuery, [full_name_id, personalInfo.dateOfBirth || null, personalInfo.gender || null, personalInfo.maritalStatus || null, currentAddress.philippines ? currentAddressInserId : null, permanentAddress.philippines ? permanentAddressInserId : null, !currentAddress.philippines ? currentAddressInserId : null, !permanentAddress.philippines ? permanentAddressInserId : null]);
                     const personalInfoInserID = addMemberPersonalInfoQueryResult.insertId;
                     //Query 5: Insert Contact Info. Check if all values are null, if true asign a null value as id else do the query and get the InsertId
                     const [addMemberContactInfoQueryResult] = (contactInformation.cpNumber == null && contactInformation.telephoneNumber == null && contactInformation.email == null) ? [null] : yield connection.query(addMemberContactInfoQuery, [contactInformation.cpNumber, contactInformation.telephoneNumber, contactInformation.email]);

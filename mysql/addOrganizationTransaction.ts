@@ -23,7 +23,7 @@ async function addOrganizatioTransactionPromise(adminInfo: { congregation: strin
                 const createOrgQ = "INSERT INTO organizations (organization_uid, organization_info, avatar) VALUES (?, ?, ?)";
                 const addOrganizationToCongregation = "INSERT INTO congregation_organizations (congregation_uid, organization_uid, created_by) VALUES (?, ?, ?)";
 
-                const [organizationInfoQResult] = await connection.query(addOrgInfoQ, [orgData.name, orgData.description]);
+                const [organizationInfoQResult] = await connection.query(addOrgInfoQ, [orgData.name || null, orgData.description || null]);
                 const organizationInfoID = (organizationInfoQResult as OkPacket).insertId
                 const [avatarQResult] = orgData.avatar? await connection.query(addAvatarQ, [orgData.avatar]) : [null];
                 const avatarID = orgData.avatar? (avatarQResult as OkPacket).insertId : null;

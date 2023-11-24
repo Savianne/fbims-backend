@@ -20,7 +20,7 @@ async function updateOrganizationInfo(organizationUID: string, updateData: IUpda
                 `, [organizationUID]) as RowDataPacket[][])[0])[0].organization_info;
                 
                 //Update Ministry info
-                await connection.query('UPDATE organization_info SET organization_name = ?, description = ? WHERE id = ?', [updateData.organizationName, updateData.description, organizationInfoKey])
+                await connection.query('UPDATE organization_info SET organization_name = ?, description = ? WHERE id = ?', [updateData.organizationName || null, updateData.description || null, organizationInfoKey])
 
                 //Commit 
                 connection.commit();

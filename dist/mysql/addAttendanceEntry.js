@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
 const generateUID_1 = require("../controller/generateUID");
-function addMinistryTransactionPromise(adminInfo, ministryData) {
+function addAttendanceEntry(entryData) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
@@ -22,21 +22,14 @@ function addMinistryTransactionPromise(adminInfo, ministryData) {
                 .then(connection => {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
-                    const ministry_UID = (0, generateUID_1.generateUID)();
-                    const addMinistryInfoQ = "INSERT INTO ministry_info (ministry_name, description) VALUES (?, ?)";
-                    const addAvatarQ = "INSERT INTO avatar (avatar) VALUES (?)";
-                    const createMinistryQ = "INSERT INTO ministry (ministry_uid, ministry_info, avatar) VALUES (?, ?, ?)";
-                    const addMinistryToCongregation = "INSERT INTO congregation_ministry (congregation_uid, ministry_uid, created_by) VALUES (?, ?, ?)";
-                    const [ministryInfoQResult] = yield connection.query(addMinistryInfoQ, [ministryData.name || null, ministryData.description || null]);
-                    const ministryInfoID = ministryInfoQResult.insertId;
-                    const [avatarQResult] = ministryData.avatar ? yield connection.query(addAvatarQ, [ministryData.avatar]) : [null];
-                    const avatarID = ministryData.avatar ? avatarQResult.insertId : null;
-                    yield connection.query(createMinistryQ, [ministry_UID, ministryInfoID, avatarID]);
-                    yield connection.query(addMinistryToCongregation, [adminInfo.congregation, ministry_UID, adminInfo.adminUID]);
+                    const entryUID = (0, generateUID_1.generateUID)();
+                    yield connection.query(`INSERT INTO attendance_entries (entry_uid, description, date, category_uid) VALUES(?, ?, ?, ?)`, [entryUID, entryData.description, entryData.entryDate, entryData.categoryUID]);
+                    yield connection.query(`INSERT INTO pending_attendance_entries (entry_uid) VALUES(?)`, [entryUID]);
+                    yield connection.query(`INSERT INTO entry_session (session, entry_uid, description) VALUES(?, ?, ?)`, [1, entryUID, "First session"]);
                     //Commit 
                     connection.commit();
                     connection.release();
-                    resolve({ querySuccess: true });
+                    resolve({ querySuccess: true, entryUID: entryUID });
                 }))
                     .catch((beginTransactionError) => {
                     connection.rollback();
@@ -56,4 +49,4 @@ function addMinistryTransactionPromise(adminInfo, ministryData) {
         });
     });
 }
-exports.default = addMinistryTransactionPromise;
+exports.default = addAttendanceEntry;

@@ -32,12 +32,12 @@ async function updateMemberBasicInfo(memberUID: string, updateData: IBasicData):
                 await connection.query(`
                 UPDATE full_name SET first_name = ?, middle_name = ?, surname = ?, ext_name = ?
                 WHERE id = ?
-                `, [updateData.first_name, updateData.middle_name, updateData.surname, updateData.ext_name, getFKey.full_name]);
+                `, [updateData.first_name || null, updateData.middle_name || null, updateData.surname || null, updateData.ext_name, getFKey.full_name]);
 
                 await connection.query(`
                 UPDATE members_personal_info SET gender = ?, marital_status = ?, date_of_birth = ?
                 WHERE id = ?
-                `, [updateData.gender, updateData.marital_status, updateData.date_of_birth, getFKey.personal_info_id]);
+                `, [updateData.gender || null, updateData.marital_status || null, updateData.date_of_birth || null, getFKey.personal_info_id]);
 
                 //Commit 
                 connection.commit();

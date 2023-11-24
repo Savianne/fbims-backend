@@ -23,7 +23,7 @@ async function addMinistryTransactionPromise(adminInfo: { congregation: string, 
                 const createMinistryQ = "INSERT INTO ministry (ministry_uid, ministry_info, avatar) VALUES (?, ?, ?)";
                 const addMinistryToCongregation = "INSERT INTO congregation_ministry (congregation_uid, ministry_uid, created_by) VALUES (?, ?, ?)";
 
-                const [ministryInfoQResult] = await connection.query(addMinistryInfoQ, [ministryData.name, ministryData.description]);
+                const [ministryInfoQResult] = await connection.query(addMinistryInfoQ, [ministryData.name || null, ministryData.description || null]);
                 const ministryInfoID = (ministryInfoQResult as OkPacket).insertId
                 const [avatarQResult] = ministryData.avatar? await connection.query(addAvatarQ, [ministryData.avatar]) : [null];
                 const avatarID = ministryData.avatar? (avatarQResult as OkPacket).insertId : null;

@@ -14,7 +14,8 @@ async function searchMemberForMinistryMembership(ministryUID: string, congregati
         JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
         JOIN full_name AS fn ON mpi.full_name = fn.id
         LEFT JOIN avatar AS a ON m.avatar = a.id
-        WHERE CONCAT_WS(' ', fn.first_name, fn.middle_name, fn.surname, fn.ext_name) LIKE ?`;
+        WHERE CONCAT_WS(' ', fn.first_name, fn.middle_name, fn.surname, fn.ext_name) LIKE ?
+        LIMIT 10`;
 
         promisePool.query(searchMemberQuery, [congregation, ministryUID, `%${searchTerm}%`])
         .then(result => {

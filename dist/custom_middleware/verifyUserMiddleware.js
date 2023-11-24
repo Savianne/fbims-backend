@@ -21,7 +21,7 @@ function verifyUserMiddleware(req, res, next) {
     if (config_1.default.allowCORS) {
         req.user = {
             name: "Roxas Churh of Christ",
-            avatar: "http://localhost:3009/assets/images/avatar/apple.png",
+            avatar: "apple.png",
             email: "www.ninzxky@gmail.com",
             UID: "1",
             congregation: "1",
