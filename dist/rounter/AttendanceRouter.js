@@ -22,6 +22,7 @@ const deleteAttendanceCategory_1 = __importDefault(require("../mysql/deleteAtten
 const addAttendanceEntry_1 = __importDefault(require("../mysql/addAttendanceEntry"));
 const getCategoryTotalEntries_1 = __importDefault(require("../mysql/getCategoryTotalEntries"));
 const getAttendanceCategoryByUid_1 = __importDefault(require("../mysql/getAttendanceCategoryByUid"));
+const getAttendanceEntriesByCategory_1 = __importDefault(require("../mysql/getAttendanceEntriesByCategory"));
 const AttendanceRouter = express_1.default.Router();
 AttendanceRouter.use((req, res, next) => {
     const request = req;
@@ -196,10 +197,11 @@ AttendanceRouter.patch("/update-category-title/:categoryUID", (req, res) => __aw
         });
     }
 }));
-AttendanceRouter.get("/get-pending-attendance-entries", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+AttendanceRouter.get("/get-pending-attendance-entries/:index", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d;
     const request = req;
     const congregationUID = (_d = request.user) === null || _d === void 0 ? void 0 : _d.congregation;
+    const index = req.params.index;
     const promisePool = pool_1.default.promise();
     try {
         const result = (yield promisePool.query(`
@@ -216,9 +218,60 @@ AttendanceRouter.get("/get-pending-attendance-entries", (req, res) => __awaiter(
             JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
             JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
             WHERE cac.congregation_uid = ?
-        `, [congregationUID]))[0];
+            LIMIT ?, ?
+        `, [congregationUID, +index || 0, 5]))[0];
         res.json({
             data: result,
+            success: true
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+}));
+AttendanceRouter.get("/get-total-pending-attendance-entries", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _e;
+    const request = req;
+    const congregationUID = (_e = request.user) === null || _e === void 0 ? void 0 : _e.congregation;
+    const promisePool = pool_1.default.promise();
+    try {
+        const rows = (yield promisePool.query(`
+            SELECT 
+                COUNT(*) AS total
+            FROM pending_attendance_entries AS pae
+            JOIN attendance_entries AS ae ON pae.entry_uid = ae.entry_uid
+            JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
+            JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
+            WHERE cac.congregation_uid = ?
+        `, [congregationUID]))[0][0].total;
+        res.json({
+            data: rows,
+            success: true
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+}));
+AttendanceRouter.post("/get-attendance-entries-by-category/:categoryUID/:index", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
+    const request = req;
+    const congregationUID = (_f = request.user) === null || _f === void 0 ? void 0 : _f.congregation;
+    const categoryUID = req.params.categoryUID;
+    const index = req.params.index;
+    const dateRangeFilter = req.body.dateRangeFilter;
+    try {
+        const result = yield (0, getAttendanceEntriesByCategory_1.default)(congregationUID, categoryUID, +index, dateRangeFilter);
+        res.json({
+            data: result.data,
             success: true
         });
     }

@@ -10,7 +10,7 @@ import deleteAttendanceCategory from '../mysql/deleteAttendanceCategory';
 import addAttendanceEntry from '../mysql/addAttendanceEntry';
 import getCategoryTotalEntries from '../mysql/getCategoryTotalEntries';
 import getAttendanceCategoryByUid from '../mysql/getAttendanceCategoryByUid';
-import updateMinistryDisplayPictureHandler from '../request-handler/update-ministry-dp-handler';
+import getAttendanceEntriesByCategory from '../mysql/getAttendanceEntriesByCategory';
 
 const AttendanceRouter = express.Router();
 
@@ -195,9 +195,11 @@ AttendanceRouter.patch("/update-category-title/:categoryUID", async (req, res) =
 
 });
 
-AttendanceRouter.get("/get-pending-attendance-entries", async (req, res) => {
-    const request = req as IUserRequest
+AttendanceRouter.get("/get-pending-attendance-entries/:index", async (req, res) => {
+    const request = (req as unknown) as IUserRequest
     const congregationUID = request.user?.congregation;
+
+    const index = req.params.index;
 
     const promisePool = pool.promise();
     try {
@@ -215,7 +217,8 @@ AttendanceRouter.get("/get-pending-attendance-entries", async (req, res) => {
             JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
             JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
             WHERE cac.congregation_uid = ?
-        `, [congregationUID])) as RowDataPacket[])[0]
+            LIMIT ?, ?
+        `, [congregationUID, +index || 0, 5])) as RowDataPacket[])[0]
 
         res.json({
             data: result,
@@ -231,6 +234,62 @@ AttendanceRouter.get("/get-pending-attendance-entries", async (req, res) => {
             error: err
         })
     }
+});
 
-})
+AttendanceRouter.get("/get-total-pending-attendance-entries", async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+
+    const promisePool = pool.promise();
+    try {
+        const rows = ((await promisePool.query(`
+            SELECT 
+                COUNT(*) AS total
+            FROM pending_attendance_entries AS pae
+            JOIN attendance_entries AS ae ON pae.entry_uid = ae.entry_uid
+            JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
+            JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
+            WHERE cac.congregation_uid = ?
+        `, [congregationUID])) as RowDataPacket[])[0][0].total
+
+        res.json({
+            data: rows,
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+
+});
+
+AttendanceRouter.post("/get-attendance-entries-by-category/:categoryUID/:index", async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+
+    const categoryUID = req.params.categoryUID;
+    const index = req.params.index;
+
+    const dateRangeFilter = req.body.dateRangeFilter as {from: string, to:string} | null
+
+    try {
+        const result = await getAttendanceEntriesByCategory(congregationUID as string, categoryUID, +index, dateRangeFilter)
+        res.json({
+            data: result.data,
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+});
+
 export default AttendanceRouter;
