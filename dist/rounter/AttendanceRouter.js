@@ -57,6 +57,42 @@ AttendanceRouter.post('/add-attendance-category', (req, res) => __awaiter(void 0
         });
     }
 }));
+AttendanceRouter.post("/add-attendance-category-attender/:categoryUID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categoryUID = req.params.categoryUID;
+    const memberUID = req.body.memberUID;
+    const promisePool = pool_1.default.promise();
+    try {
+        yield promisePool.query("INSERT INTO attendance_category_attenders (member_uid, category_id) VALUES(?, ?)", [memberUID, categoryUID]);
+        res.json({
+            success: true
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+}));
+AttendanceRouter.delete("/remove-category-attender/:categoryUID/:memberUID", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categoryUID = req.params.categoryUID;
+    const memberUID = req.params.memberUID;
+    const promisePool = pool_1.default.promise();
+    try {
+        yield promisePool.query("DELETE FROM attendance_category_attenders WHERE member_uid = ? AND category_id = ?", [memberUID, categoryUID]);
+        res.json({
+            success: true
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+}));
 AttendanceRouter.get("/get-attendance-category/:uid", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const uid = req.params.uid;
     try {

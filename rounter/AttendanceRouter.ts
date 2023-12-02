@@ -47,6 +47,46 @@ AttendanceRouter.post('/add-attendance-category', async (req, res) => {
     }
 });
 
+AttendanceRouter.post("/add-attendance-category-attender/:categoryUID", async (req, res) => {
+    const categoryUID = req.params.categoryUID;
+    const memberUID = req.body.memberUID;
+
+    const promisePool = pool.promise();
+    try {
+        await promisePool.query("INSERT INTO attendance_category_attenders (member_uid, category_id) VALUES(?, ?)", [memberUID, categoryUID]);
+        res.json({
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+
+});
+
+AttendanceRouter.delete("/remove-category-attender/:categoryUID/:memberUID", async (req, res) => {
+    const categoryUID = req.params.categoryUID;
+    const memberUID = req.params.memberUID;
+    const promisePool = pool.promise();
+    try {
+        await promisePool.query("DELETE FROM attendance_category_attenders WHERE member_uid = ? AND category_id = ?", [memberUID, categoryUID]);
+        res.json({
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+})
+
 AttendanceRouter.get("/get-attendance-category/:uid", async (req, res) => {
     const uid = req.params.uid;
 
