@@ -13,8 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-const generateUID_1 = require("../controller/generateUID");
-function addAttendanceEntry(entryData) {
+function deleteAttendanceEntrySession(entryUID, attendanceType, session) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
@@ -22,14 +21,18 @@ function addAttendanceEntry(entryData) {
                 .then(connection => {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
-                    const entryUID = (0, generateUID_1.generateUID)();
-                    yield connection.query(`INSERT INTO attendance_entries (entry_uid, description, date, category_uid) VALUES(?, ?, ?, ?)`, [entryUID, entryData.description, entryData.entryDate, entryData.categoryUID]);
-                    yield connection.query(`INSERT INTO pending_attendance_entries (entry_uid) VALUES(?)`, [entryUID]);
-                    yield connection.query(`INSERT INTO entry_session (entry_uid) VALUES(?)`, [entryUID]);
+                    if (attendanceType !== "basic" && attendanceType !== "detailed")
+                        throw "Invalid type";
+                    //Check if the session has attender
+                    const hasAttendees = attendanceType == "basic" ? (yield connection.query("SELECT COUNT(*) AS count FROM basic_attendance WHERE entry_uid = ? AND entry_session = ?", [entryUID, session]))[0][0].count :
+                        (yield connection.query("SELECT COUNT(*) AS count FROM detailed_attendance WHERE entry_uid = ? AND entry_session = ?", [entryUID, session]))[0][0].count;
+                    if (hasAttendees)
+                        throw "Has attendee";
+                    yield connection.query("DELETE FROM entry_session WHERE id = ? AND entry_uid = ?", [session, entryUID]);
                     //Commit 
                     connection.commit();
                     connection.release();
-                    resolve({ querySuccess: true, entryUID: entryUID });
+                    resolve({ querySuccess: true });
                 }))
                     .catch((beginTransactionError) => {
                     connection.rollback();
@@ -49,4 +52,4 @@ function addAttendanceEntry(entryData) {
         });
     });
 }
-exports.default = addAttendanceEntry;
+exports.default = deleteAttendanceEntrySession;

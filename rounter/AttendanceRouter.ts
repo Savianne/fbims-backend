@@ -11,6 +11,10 @@ import addAttendanceEntry from '../mysql/addAttendanceEntry';
 import getCategoryTotalEntries from '../mysql/getCategoryTotalEntries';
 import getAttendanceCategoryByUid from '../mysql/getAttendanceCategoryByUid';
 import getAttendanceEntriesByCategory from '../mysql/getAttendanceEntriesByCategory';
+import addPresent from '../mysql/addPresent';
+import addTimeIn from '../mysql/addTimeIn';
+import addTimeOut from '../mysql/addTimeOut';
+import deleteAttendanceEntrySession from '../mysql/deleteAttendanceEntrySession';
 
 const AttendanceRouter = express.Router();
 
@@ -235,6 +239,50 @@ AttendanceRouter.patch("/update-category-title/:categoryUID", async (req, res) =
 
 });
 
+AttendanceRouter.patch("/update-entry-title/:entryUID", async (req, res) => {
+    const entryUID = req.params.entryUID;
+    const title = req.body.title;
+
+    const promisePool = pool.promise();
+    try {
+        await promisePool.query("UPDATE attendance_entries SET description = ? WHERE entry_uid = ?", [title || null, entryUID]);
+        res.json({
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+
+});
+
+AttendanceRouter.post("/add-entry-session/:entryUID", async (req, res) => {
+    const entryUID = req.params.entryUID;
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const promisePool = pool.promise();
+    try {
+        const id = ((await promisePool.query("INSERT INTO entry_session (entry_uid) VALUES(?)", [entryUID]))[0] as OkPacket).insertId;
+        io.emit(`${congregationUID}-ADDED_NEW_ATTENDANCE_ENTRY_SESSION-${entryUID}`)
+        res.json({
+            success: true,
+            id: id
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+
+});
+
 AttendanceRouter.get("/get-pending-attendance-entries/:index", async (req, res) => {
     const request = (req as unknown) as IUserRequest
     const congregationUID = request.user?.congregation;
@@ -258,7 +306,7 @@ AttendanceRouter.get("/get-pending-attendance-entries/:index", async (req, res) 
             JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
             WHERE cac.congregation_uid = ?
             LIMIT ?, ?
-        `, [congregationUID, +index || 0, 5])) as RowDataPacket[])[0]
+        `, [congregationUID, +index || 0, 5])) as RowDataPacket[][])[0]
 
         res.json({
             data: result,
@@ -307,6 +355,30 @@ AttendanceRouter.get("/get-total-pending-attendance-entries", async (req, res) =
 
 });
 
+AttendanceRouter.get("/get-entry-sessions/:entryUID", async (req, res) => {
+    const entryUID = req.params.entryUID;
+
+    const promisePool = pool.promise();
+    try {
+        const rows = ((await promisePool.query(`
+            SELECT id FROM entry_session WHERE entry_uid = ?
+        `, [entryUID])) as RowDataPacket[])[0]
+
+        res.json({
+            data: rows,
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+
+});
+
 AttendanceRouter.post("/get-attendance-entries-by-category/:categoryUID/:index", async (req, res) => {
     const request = (req as unknown) as IUserRequest
     const congregationUID = request.user?.congregation;
@@ -329,6 +401,221 @@ AttendanceRouter.post("/get-attendance-entries-by-category/:categoryUID/:index",
             success: false,
             error: err
         })
+    }
+});
+
+AttendanceRouter.get("/get-basic-attendance-present-attendees/:entryUID", async (req, res) => {
+    const entryUID =req.params.entryUID;
+
+    const promisePool = pool.promise();
+    try {
+        const result = ((await promisePool.query(`
+            SELECT ba.entry_session AS entrySession, ba.entry_uid AS entryUID, m.member_uid AS memberUID, a.avatar AS picture, CONCAT_WS(' ', fn.first_name, LEFT(fn.middle_name, 1), ". ", fn.surname, fn.ext_name) AS name
+            FROM basic_attendance AS ba
+            JOIN members AS m ON ba.member_uid = m.member_uid
+            JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
+            JOIN full_name AS fn ON mpi.full_name = fn.id
+            LEFT JOIN avatar AS a ON m.avatar = a.id
+            WHERE ba.entry_uid = ?
+        `, [entryUID])) as RowDataPacket[][])[0]
+
+        res.json({
+            data: result,
+            success: true
+        })
+        
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+});
+
+AttendanceRouter.get("/get-detailed-attendance-attendees/:entryUID", async (req, res) => {
+    const entryUID =req.params.entryUID;
+
+    const promisePool = pool.promise();
+    try {
+        const result = ((await promisePool.query(`
+            SELECT da.id, da.entry_session AS entrySession, da.entry_uid AS entryUID, da.time_in AS timeIn, da.time_out AS timeOut, m.member_uid AS memberUID, a.avatar AS picture, CONCAT_WS(' ', fn.first_name, LEFT(fn.middle_name, 1), ". ", fn.surname, fn.ext_name) AS name
+            FROM detailed_attendance AS da
+            JOIN members AS m ON da.member_uid = m.member_uid
+            JOIN members_personal_info AS mpi ON m.personal_info = mpi.id
+            JOIN full_name AS fn ON mpi.full_name = fn.id
+            LEFT JOIN avatar AS a ON m.avatar = a.id
+            WHERE da.entry_uid = ?
+        `, [entryUID])) as RowDataPacket[][])[0]
+
+        res.json({
+            data: result,
+            success: true
+        })
+        
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        })
+    }
+});
+
+AttendanceRouter.post('/add-present', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const data = req.body;
+
+    try {
+        const result = await addPresent(congregationUID as string, data.categoryUID, data);
+
+        if(result.querySuccess) {
+            io.emit(`${congregationUID}-NEW_PRESENT_${data.entryUID}`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            io.emit(`${congregationUID}-NEW_PRESENT`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            res.json({
+                success: true,
+            });  
+        } else throw result
+    }
+    catch(err) {
+        console.log(err)
+        const queryError = (err as unknown) as {error: any}
+        res.json({
+            success: false,
+            error: queryError.error
+        });
+    }
+});
+
+AttendanceRouter.post('/add-time-in', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const data = req.body;
+
+    try {
+        const result = await addTimeIn(congregationUID as string, data.categoryUID, data);
+
+        if(result.querySuccess) {
+            io.emit(`${congregationUID}-NEW_TIMEIN_${data.entryUID}`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            io.emit(`${congregationUID}-NEW_TIMEIN`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            res.json({
+                success: true,
+            });  
+        } else throw result
+    }
+    catch(err) {
+        console.log(err)
+        const queryError = (err as unknown) as {error: any}
+        res.json({
+            success: false,
+            error: queryError.error
+        });
+    }
+});
+
+AttendanceRouter.post('/add-time-out', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const data = req.body;
+
+    try {
+        const result = await addTimeOut(congregationUID as string, data.categoryUID, data);
+
+        if(result.querySuccess) {
+            io.emit(`${congregationUID}-NEW_TIMEOUT_${data.entryUID}`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            io.emit(`${congregationUID}-NEW_TIMEOUT`, {...result.profile, entrySession: data.session, entryUID: data.entryUID})
+            res.json({
+                success: true,
+            });  
+        } else throw result.error
+    }
+    catch(err) {
+        console.log(err)
+        const queryError = (err as unknown) as {error: any}
+        res.json({
+            success: false,
+            error: queryError.error
+        });
+    }
+});
+
+
+AttendanceRouter.delete('/remove-present/:entryUID/:memberUID', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const entryUID = req.params.entryUID;
+    const memberUID = req.params.memberUID;
+
+    const promisePool = pool.promise();
+    try {
+        await promisePool.query("DELETE FROM basic_attendance WHERE entry_uid = ? AND member_uid = ?", [entryUID, memberUID]);
+        io.emit(`${congregationUID}-REMOVED_PRESENT_${entryUID}`)
+        res.json({
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+});
+
+AttendanceRouter.delete('/remove-time-in-out/:entryUID/:memberUID', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const entryUID = req.params.entryUID;
+    const memberUID = req.params.memberUID;
+
+    const promisePool = pool.promise();
+    try {
+        await promisePool.query("DELETE FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ?", [entryUID, memberUID]);
+        io.emit(`${congregationUID}-REMOVED_TIMEINOUT_${entryUID}`)
+        res.json({
+            success: true
+        })
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+});
+
+AttendanceRouter.delete('/delete-attendance-entry-session/:type/:entryUID/:session', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const entryUID = req.params.entryUID;
+    const session = req.params.session;
+    const type = req.params.type;
+
+    try {
+        const result = await deleteAttendanceEntrySession(entryUID, type as "basic" | "detailed", +session);
+
+        if(result.querySuccess) {
+            io.emit(`${congregationUID}-DELETED_ATTENDANCE_ENTRY_SESSION-${entryUID}`)
+            res.json({
+                success: true,
+            });  
+        } else throw result.error
+    }
+    catch(err) {
+        const error = err as {
+            querySuccess: false,
+            error: any,
+        }
+        console.log(error.error)
+        res.json({
+            success: false,
+            error: error.error
+        });
     }
 });
 

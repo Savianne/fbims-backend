@@ -19,7 +19,7 @@ async function addAttendanceEntry(entryData: TEntryData): Promise<{ querySuccess
 
                 await connection.query(`INSERT INTO attendance_entries (entry_uid, description, date, category_uid) VALUES(?, ?, ?, ?)`,[entryUID, entryData.description, entryData.entryDate, entryData.categoryUID]);
                 await connection.query(`INSERT INTO pending_attendance_entries (entry_uid) VALUES(?)`, [entryUID]);
-                await connection.query(`INSERT INTO entry_session (session, entry_uid, description) VALUES(?, ?, ?)`, [1, entryUID, "First session"]);
+                await connection.query(`INSERT INTO entry_session (entry_uid) VALUES(?)`, [entryUID]);
 
                 //Commit 
                 connection.commit();

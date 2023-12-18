@@ -17,7 +17,7 @@ async function getAttendanceCategoryAttenders(categoryUID: string): Promise<{ qu
             .then(async () => {
                 //get attenders
                 const attenders = ((await connection.query(`
-                SELECT m.member_uid AS memberUID, a.avatar AS picture, CONCAT_WS(' ', fn.first_name, fn.middle_name, fn.surname, fn.ext_name) AS name
+                SELECT m.member_uid AS memberUID, a.avatar AS picture, CONCAT_WS(' ', fn.first_name, LEFT(fn.middle_name, 1), ". ", fn.surname, fn.ext_name) AS name
                 FROM attendance_category_attenders AS aca
                 JOIN members AS m ON aca.member_uid = m.member_uid
                 JOIN members_personal_info AS mpi ON m.personal_info = mpi.id

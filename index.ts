@@ -31,7 +31,7 @@ const app = express();
 const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000', // Specify the allowed origin(s)
+    origin: '*', // Specify the allowed origin(s)
     methods: ['GET', 'POST'] // Specify the allowed HTTP methods
   }
 });
