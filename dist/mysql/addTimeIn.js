@@ -38,9 +38,13 @@ function addTimeIn(congregationUID, categoryUID, entry) {
                         (yield connection.query("SELECT * FROM attendance_category_attenders WHERE member_uid = ? AND category_id = ?", [entry.memberUID, categoryUID]))[0].length;
                     if (entry.attender == "select" && isAttender == 0)
                         throw "Not belong as attender";
+                    //Check if the the attender exist in other sessions
+                    const existInOtherSession = (yield connection.query("SELECT COUNT(*) AS count FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND entry_session != ?", [entry.entryUID, entry.memberUID, entry.session]))[0][0].count;
+                    if (existInOtherSession)
+                        throw "EXIST IN OTHER SESSION";
                     //Check if the attender already timed-in and does not yet timed-out
                     //Only allow time-in when the attender has not timed-in yet or it has no pending time-out
-                    const hasPendingTimeOut = (yield connection.query("SELECT * FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND time_out IS NULL", [entry.entryUID, entry.memberUID]))[0].length;
+                    const hasPendingTimeOut = (yield connection.query("SELECT * FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND entry_session = ? AND time_out IS NULL", [entry.entryUID, entry.memberUID, entry.session]))[0].length;
                     if (hasPendingTimeOut)
                         throw "HAS PENDING TIME-OUT";
                     yield connection.query("INSERT INTO detailed_attendance (entry_uid, member_uid, entry_session, time_in, time_out) VALUES(?, ?, ?, ?, NULL)", [entry.entryUID, entry.memberUID, entry.session, entry.timeIn]);

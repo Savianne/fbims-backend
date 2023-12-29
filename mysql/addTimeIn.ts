@@ -38,9 +38,14 @@ async function addTimeIn(congregationUID: string, categoryUID: string, entry: TE
                    
                 if(entry.attender == "select" && isAttender == 0) throw "Not belong as attender";
 
+                //Check if the the attender exist in other sessions
+                const existInOtherSession = (await connection.query("SELECT COUNT(*) AS count FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND entry_session != ?", [entry.entryUID, entry.memberUID, entry.session]) as RowDataPacket[][])[0][0].count
+
+                if(existInOtherSession) throw "EXIST IN OTHER SESSION";
+
                 //Check if the attender already timed-in and does not yet timed-out
                 //Only allow time-in when the attender has not timed-in yet or it has no pending time-out
-                const hasPendingTimeOut = ((await connection.query("SELECT * FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND time_out IS NULL", [entry.entryUID, entry.memberUID])) as RowDataPacket[][])[0].length;
+                const hasPendingTimeOut = ((await connection.query("SELECT * FROM detailed_attendance WHERE entry_uid = ? AND member_uid = ? AND entry_session = ? AND time_out IS NULL", [entry.entryUID, entry.memberUID, entry.session])) as RowDataPacket[][])[0].length;
                 
                 if(hasPendingTimeOut) throw "HAS PENDING TIME-OUT";
 

@@ -17,6 +17,11 @@ async function deleteAttendanceEntrySession(entryUID: string, attendanceType: "b
 
                 if(hasAttendees) throw "Has attendee";
 
+                //Check if the session is the only one session of the entry, then throw error to disable the deletion
+                const isOnlyOneSession = (await connection.query(`SELECT COUNT(*) AS count FROM entry_session WHERE entry_uid = ?`, [entryUID]) as RowDataPacket[][])[0][0].count <= 1;
+
+                if(isOnlyOneSession) throw "Only one Session";
+
                 await connection.query("DELETE FROM entry_session WHERE id = ? AND entry_uid = ?", [session, entryUID]);
 
                 //Commit 

@@ -27,6 +27,7 @@ const addPresent_1 = __importDefault(require("../mysql/addPresent"));
 const addTimeIn_1 = __importDefault(require("../mysql/addTimeIn"));
 const addTimeOut_1 = __importDefault(require("../mysql/addTimeOut"));
 const deleteAttendanceEntrySession_1 = __importDefault(require("../mysql/deleteAttendanceEntrySession"));
+const savePendingEntry_1 = __importDefault(require("../mysql/savePendingEntry"));
 const AttendanceRouter = express_1.default.Router();
 AttendanceRouter.use((req, res, next) => {
     const request = req;
@@ -568,6 +569,55 @@ AttendanceRouter.delete('/delete-attendance-entry-session/:type/:entryUID/:sessi
         const result = yield (0, deleteAttendanceEntrySession_1.default)(entryUID, type, +session);
         if (result.querySuccess) {
             __1.io.emit(`${congregationUID}-DELETED_ATTENDANCE_ENTRY_SESSION-${entryUID}`);
+            res.json({
+                success: true,
+            });
+        }
+        else
+            throw result.error;
+    }
+    catch (err) {
+        const error = err;
+        console.log(error.error);
+        res.json({
+            success: false,
+            error: error.error
+        });
+    }
+}));
+AttendanceRouter.delete('/remove-time-in-out-by-id/:entryUID/:memberUID/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _p;
+    const request = req;
+    const congregationUID = (_p = request.user) === null || _p === void 0 ? void 0 : _p.congregation;
+    const id = req.params.id;
+    const entryUID = req.params.entryUID;
+    const memberUID = req.params.memberUID;
+    const promisePool = pool_1.default.promise();
+    try {
+        yield promisePool.query("DELETE FROM detailed_attendance WHERE id = ? AND entry_uid = ? AND member_uid = ?", [id, entryUID, memberUID]);
+        __1.io.emit(`${congregationUID}-REMOVED_TIMEINOUT_${entryUID}`);
+        res.json({
+            success: true,
+        });
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+}));
+AttendanceRouter.post('/save-attendance-entry/:entryUID/:categoryUID', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _q;
+    const request = req;
+    const congregationUID = (_q = request.user) === null || _q === void 0 ? void 0 : _q.congregation;
+    const entryUID = req.params.entryUID;
+    const categoryUID = req.params.categoryUID;
+    try {
+        const result = yield (0, savePendingEntry_1.default)(entryUID);
+        if (result.querySuccess) {
+            __1.io.emit(`${congregationUID}-ENTRY_SAVED`, { category: categoryUID });
             res.json({
                 success: true,
             });

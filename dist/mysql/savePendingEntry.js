@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pool_1 = __importDefault(require("./pool"));
-function deleteAttendanceEntrySession(entryUID, attendanceType, session) {
+function savePendingEntry(entryUID) {
     return __awaiter(this, void 0, void 0, function* () {
         const promisePool = pool_1.default.promise();
         return new Promise((resolve, reject) => {
@@ -21,18 +21,9 @@ function deleteAttendanceEntrySession(entryUID, attendanceType, session) {
                 .then(connection => {
                 connection.beginTransaction()
                     .then(() => __awaiter(this, void 0, void 0, function* () {
-                    if (attendanceType !== "basic" && attendanceType !== "detailed")
-                        throw "Invalid type";
-                    //Check if the session has attender
-                    const hasAttendees = attendanceType == "basic" ? (yield connection.query("SELECT COUNT(*) AS count FROM basic_attendance WHERE entry_uid = ? AND entry_session = ?", [entryUID, session]))[0][0].count :
-                        (yield connection.query("SELECT COUNT(*) AS count FROM detailed_attendance WHERE entry_uid = ? AND entry_session = ?", [entryUID, session]))[0][0].count;
-                    if (hasAttendees)
-                        throw "Has attendee";
-                    //Check if the session is the only one session of the entry, then throw error to disable the deletion
-                    const isOnlyOneSession = (yield connection.query(`SELECT COUNT(*) AS count FROM entry_session WHERE entry_uid = ?`, [entryUID]))[0][0].count <= 1;
-                    if (isOnlyOneSession)
-                        throw "Only one Session";
-                    yield connection.query("DELETE FROM entry_session WHERE id = ? AND entry_uid = ?", [session, entryUID]);
+                    //check if 
+                    yield connection.query("DELETE FROM pending_attendance_entries WHERE entry_uid = ?", [entryUID]);
+                    yield connection.query("INSERT INTO submitted_attendance_entries (entry_uid) VALUES(?)", [entryUID]);
                     //Commit 
                     connection.commit();
                     connection.release();
@@ -56,4 +47,4 @@ function deleteAttendanceEntrySession(entryUID, attendanceType, session) {
         });
     });
 }
-exports.default = deleteAttendanceEntrySession;
+exports.default = savePendingEntry;

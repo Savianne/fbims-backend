@@ -28,7 +28,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                     FROM attendance_entries AS ae
                     JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
                     LEFT JOIN pending_attendance_entries AS pae ON ae.entry_uid = pae.entry_uid
-                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = pae.entry_uid
+                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = sae.entry_uid
                     JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
                     WHERE cac.congregation_uid = ? AND ac.uid = ? AND ae.date >= ? AND ae.date <= ?
                 `, [congregationUID, categoryUID, dateRangeFilter.from, dateRangeFilter.to]))[0][0].total :
@@ -37,7 +37,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                     FROM attendance_entries AS ae
                     JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
                     LEFT JOIN pending_attendance_entries AS pae ON ae.entry_uid = pae.entry_uid
-                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = pae.entry_uid
+                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = sae.entry_uid
                     JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
                     WHERE cac.congregation_uid = ? AND ac.uid = ?
                 `, [congregationUID, categoryUID]))[0][0].total;
@@ -51,7 +51,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                             WHEN sae.entry_uid IS NOT NULL THEN true
                             ELSE false
                         END as saved,
-                        pae.entry_uid AS entryUID, 
+                        ae.entry_uid AS entryUID, 
                         ac.uid AS categoryUID, 
                         ac.title AS categoryTitle, 
                         ac.type, 
@@ -61,7 +61,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                     FROM attendance_entries AS ae
                     JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
                     LEFT JOIN pending_attendance_entries AS pae ON ae.entry_uid = pae.entry_uid
-                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = pae.entry_uid
+                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = sae.entry_uid
                     JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
                     WHERE cac.congregation_uid = ? AND ac.uid = ? AND ae.date >= ? AND ae.date <= ?
                     LIMIT ?, ?
@@ -76,7 +76,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                             WHEN sae.entry_uid IS NOT NULL THEN true
                             ELSE false
                         END as saved,
-                        pae.entry_uid AS entryUID, 
+                        ae.entry_uid AS entryUID, 
                         ac.uid AS categoryUID, 
                         ac.title AS categoryTitle, 
                         ac.type, 
@@ -86,7 +86,7 @@ function getAttendanceEntriesByCategory(congregationUID, categoryUID, lastSelect
                     FROM attendance_entries AS ae
                     JOIN attendance_categories AS ac ON ae.category_uid = ac.uid
                     LEFT JOIN pending_attendance_entries AS pae ON ae.entry_uid = pae.entry_uid
-                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = pae.entry_uid
+                    LEFT JOIN submitted_attendance_entries AS sae ON ae.entry_uid = sae.entry_uid
                     JOIN congregation_attendance_category AS cac ON ac.uid = cac.category_uid
                     WHERE cac.congregation_uid = ? AND ac.uid = ?
                     LIMIT ?, ?

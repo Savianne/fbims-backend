@@ -15,6 +15,7 @@ import addPresent from '../mysql/addPresent';
 import addTimeIn from '../mysql/addTimeIn';
 import addTimeOut from '../mysql/addTimeOut';
 import deleteAttendanceEntrySession from '../mysql/deleteAttendanceEntrySession';
+import savePendingEntry from '../mysql/savePendingEntry';
 
 const AttendanceRouter = express.Router();
 
@@ -601,6 +602,61 @@ AttendanceRouter.delete('/delete-attendance-entry-session/:type/:entryUID/:sessi
 
         if(result.querySuccess) {
             io.emit(`${congregationUID}-DELETED_ATTENDANCE_ENTRY_SESSION-${entryUID}`)
+            res.json({
+                success: true,
+            });  
+        } else throw result.error
+    }
+    catch(err) {
+        const error = err as {
+            querySuccess: false,
+            error: any,
+        }
+        console.log(error.error)
+        res.json({
+            success: false,
+            error: error.error
+        });
+    }
+});
+
+AttendanceRouter.delete('/remove-time-in-out-by-id/:entryUID/:memberUID/:id', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const id = req.params.id;
+    const entryUID = req.params.entryUID;
+    const memberUID = req.params.memberUID;
+
+    const promisePool = pool.promise();
+
+    try {
+        await promisePool.query("DELETE FROM detailed_attendance WHERE id = ? AND entry_uid = ? AND member_uid = ?", [id, entryUID, memberUID]);
+
+        io.emit(`${congregationUID}-REMOVED_TIMEINOUT_${entryUID}`)
+        res.json({
+            success: true,
+        });  
+    }
+    catch(err) {
+        console.log(err)
+        res.json({
+            success: false,
+            error: err
+        });
+    }
+});
+
+AttendanceRouter.post('/save-attendance-entry/:entryUID/:categoryUID', async (req, res) => {
+    const request = (req as unknown) as IUserRequest
+    const congregationUID = request.user?.congregation;
+    const entryUID = req.params.entryUID;
+    const categoryUID = req.params.categoryUID;
+
+    try {
+        const result = await savePendingEntry(entryUID)
+
+        if(result.querySuccess) {
+            io.emit(`${congregationUID}-ENTRY_SAVED`, {category: categoryUID})
             res.json({
                 success: true,
             });  
